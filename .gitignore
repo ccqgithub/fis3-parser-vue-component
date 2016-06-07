@@ -1,0 +1,10 @@
+*.log
+*.pid
+*.seed
+.DS_Store
+.grunt
+.npm
+
+npm-debug.log*
+
+node_modules

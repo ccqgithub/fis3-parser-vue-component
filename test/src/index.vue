@@ -7,6 +7,6 @@
 
 </template>
 
-<script lang="">
+<script>
 
 </script>

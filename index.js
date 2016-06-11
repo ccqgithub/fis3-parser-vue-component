@@ -1,32 +1,15 @@
+var path = require('path');
 var parse5 = require('parse5');
 var validateTemplate = require('vue-template-validator');
 
-function commentScript(content, lang) {
-  var symbol = getCommentSymbol(lang)
-  var lines = content.split(splitRE)
-  return lines.map(function(line, index) {
-      // preserve EOL
-      if (index === lines.length - 1 && emptyRE.test(line)) {
-        return ''
-      } else {
-        return symbol + (emptyRE.test(line) ? '' : ' ' + line)
-      }
-    })
-    .join('\n');
-}
-
-function getCommentSymbol(lang) {
-  return commentSymbols[lang] || '//'
-}
-
 function getAttribute(node, name) {
   if (node.attrs) {
-    var i = node.attrs.length
-    var attr
+    var i = node.attrs.length;
+    var attr;
     while (i--) {
-      attr = node.attrs[i]
+      attr = node.attrs[i];
       if (attr.name === name) {
-        return attr.value
+        return attr.value;
       }
     }
   }
@@ -34,9 +17,16 @@ function getAttribute(node, name) {
 
 // exports
 module.exports = function(content, file, conf) {
+  var scriptStr = '';
+  var templateFileName, templateFile;
   var fragment = parse5.parseFragment(content, {
     locationInfo: true
   });
+  var output = {
+    template: [],
+    style: [],
+    script: []
+  };
 
   fragment.childNodes.forEach(function(node) {
     var type = node.tagName;
@@ -44,61 +34,56 @@ module.exports = function(content, file, conf) {
     var src = getAttribute(node, 'src');
     var scoped = getAttribute(node, 'scoped') != null;
     var warnings = null;
-    var map = null;
-    var output;
 
-    output = {
-      template: null,
-      style: null,
-      script: null
+    if (!output[type]) return;
+
+    if (!lang) {
+      if (type == 'script') lang = 'js';
+      if (type == 'style') lang = 'css';
+      if (type == 'template') lang = 'html';
     }
 
     // node count check
-    if (
-      (type === 'script' || type === 'template') &&
-      output[type].length > 0
-    ) {
+    if ((type === 'script' || type === 'template') && output[type].length > 0) {
       throw new Error(
         '[fis3-parser-vue-component] Only one <script> or <template> tag is ' +
         'allowed inside a Vue component.'
       )
+    } else {
+      output[type].push({
+        content: node.content,
+        lang: lang
+      });
     }
+  });
 
-    // handle src imports
-    if (src) {
-      if (type === 'style') {
-        output.styleImports.push({
-          src: src,
-          lang: lang,
-          scoped: scoped
-        })
-      } else if (type === 'template') {
-        output.template.push({
-          src: src,
-          lang: lang
-        })
-      } else if (type === 'script') {
-        output.script.push({
-          src: src,
-          lang: lang
-        })
-      }
-      return
-    }
+  // script
+  if (output['script'].length) {
+    scriptStr = output['script'][0].content;
+  } else {
+    scriptStr += 'module.exports = {}';
+  }
 
-    // skip empty script/style tags
-    if (type !== 'template' && (!node.childNodes || !node.childNodes.length)) {
-      return
-    }
+  // style
+  output['style'].forEach(function(item, index) {
+    var styleFileName = file.subpathNoExt + '_vue_style_' + index + '.' + item.lang;
+    var styleFile = fis.file.wrap(styleFileName);
+    styleFile.setContent(output['style'][0].content);
+    file.addRequire(styleFile.getId());
+  });
 
-    // template content is nested inside the content fragment
-    if (type === 'template') {
-      node = node.content
-      if (!lang) {
-        warnings = validateTemplate(node, content)
-      }
-    }
+  // template
+  if (output['template'].length) {
+    validateTemplate(output['template'][0].content).forEach(function(msg) {
+      console.log(msg)
+    })
+    templateFileName = file.subpathNoExt + '_vue_template' + '.' + output['template'][0].lang;
+    templateFile = fis.file.wrap(templateFileName);
+    templateFile.setContent(output['template'][0].content);
+    scriptStr += '\nmodule.exports.template=__inline("' + templateFileName + '");\n';
+  } else {
+    scriptStr += '\nmodule.exports.template="";\n';
+  }
 
-
-  return content;
+  return scriptStr;
 };

@@ -29,14 +29,6 @@ module.exports = function(content, file, conf) {
     script: []
   };
 
-  function getContent(node) {
-    var start, end;
-    if (!node.childNodes || !node.childNodes.length) return '';
-    start = node.childNodes[0].__location.startOffset;
-    end = node.childNodes[node.childNodes.length - 1].__location.endOffset;
-    return content.slice(start, end);
-  }
-
   fragment.childNodes.forEach(function(node) {
     var type = node.tagName;
     var lang = getAttribute(node, 'lang');
@@ -60,7 +52,7 @@ module.exports = function(content, file, conf) {
     if (type == 'template') {
       content = parse5.serialize(node.content);
     } else {
-      content = getContent(node);
+      content = parse5.serialize(node);
     }
 
     content = deindent(content);
@@ -74,7 +66,7 @@ module.exports = function(content, file, conf) {
       )
     } else {
       output[type].push({
-        content: node.content,
+        content: content,
         lang: lang
       });
     }

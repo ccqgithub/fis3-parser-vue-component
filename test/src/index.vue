@@ -1,6 +1,14 @@
 
-<style lang="less"></style>
+<style lang="less">
+.a{}
+</style>
 
-<template></template>
+<template>
+  <div class="">
 
-<script></script>
+  </div>
+</template>
+
+<script>
+  var a= 1;
+</script>

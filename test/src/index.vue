@@ -1,12 +1,6 @@
 
-<style lang="less">
+<style lang="less"></style>
 
-</style>
+<template></template>
 
-<template>
-
-</template>
-
-<script>
-
-</script>
+<script></script>

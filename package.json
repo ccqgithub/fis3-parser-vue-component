@@ -11,6 +11,7 @@
   ],
   "main": "index.js",
   "dependencies": {
+    "de-indent": "^1.0.2",
     "parse5": "^2.1.5",
     "vue-template-validator": "^1.1.5"
   },

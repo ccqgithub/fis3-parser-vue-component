@@ -81,7 +81,7 @@ module.exports = function(content, file, conf) {
 
   // style
   output['style'].forEach(function(item, index) {
-    var styleFileName = file.subpathNoExt + '_vue_style_' + index + '.' + item.lang;
+    var styleFileName = file.realpathNoExt + '_vue_style_' + index + '.' + item.lang;
     var styleFile = fis.file.wrap(styleFileName);
     styleFile.cache = file.cache;
     styleFile.setContent(output['style'][0].content);
@@ -98,16 +98,17 @@ module.exports = function(content, file, conf) {
     validateTemplate(output['template'][0].content).forEach(function(msg) {
       console.log(msg)
     })
-    templateFileName = file.subpathNoExt + '_vue_template' + '.' + output['template'][0].lang;
+    templateFileName = file.realpathNoExt + '_vue_template' + '.' + output['template'][0].lang;
     templateFile = fis.file.wrap(templateFileName);
     templateFile.cache = file.cache;
+    templateFile.release = false;
     templateFile.setContent(output['template'][0].content);
     fis.compile.process(templateFile);
     templateFile.links.forEach(function(derived) {
       file.addLink(derived);
     });
-    file.derived.push(templateFile);
-    scriptStr += '\nmodule.exports.template="' + templateFile.getContent() + '";\n';
+    // file.derived.push(templateFile);
+    scriptStr += '\nmodule.exports.template=' + JSON.stringify(templateFile.getContent()) + ';\n';
   } else {
     scriptStr += '\nmodule.exports.template="";\n';
   }

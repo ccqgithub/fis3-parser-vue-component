@@ -8,5 +8,8 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "fis3-postpackager-loader": "^1.5.2"
+  }
 }

@@ -40,3 +40,13 @@ fis.match('src/**.vue', {
   ]
 });
 ```
+
+# 测试demo
+
+`cd test`, 编写代码…
+
+`npm install`
+
+`fis3 release`
+
+`fis3 server start`

@@ -10,7 +10,7 @@ fis.set('project.ignore', fis.get('project.ignore').concat(['output/**', 'DS_sto
 // https://github.com/fex-team/fis3-hook-commonjs (forwardDeclaration: true)
 fis.hook('commonjs', {
   extList: [
-    '.js', '.coffee', '.es6', '.jsx',
+    '.js', '.coffee', '.es6', '.jsx', '.vue',
   ],
   umd2commonjs: true,
   ignoreDependencies: [
@@ -18,28 +18,55 @@ fis.hook('commonjs', {
   ]
 });
 
-// 模块文件，会进行require包装
-fis.match('/{node_modules,src}/**.{js,jsx}', {
-  isMod: true,
-  useSameNameRequire: true,
-});
-
-// vue
-fis.match('src/**.vue', {
-  rExt: 'js',
-  useSameNameRequire: true,
-  parser: [parserVuePlugin]
-});
-
-fis.match('**', {
-  release: '$&'
-});
-
 // 用 less 解析
 fis.match('*.less', {
   rExt: 'css',
   parser: [fis.plugin('less-2.x')],
   postprocessor: fis.plugin('autoprefixer'),
+});
+
+// vue
+fis.match('src/**.vue', {
+  isMod: true,
+  rExt: 'js',
+  useSameNameRequire: true,
+  parser: [
+    parserVuePlugin,
+    fis.plugin('babel-6.x', {
+      presets: ['es2015-loose', 'react', 'stage-3']
+    }),
+    fis.plugin('translate-es3ify', null, 'append')
+  ]
+});
+
+fis.match('**.js', {
+  isMod: true,
+  rExt: 'js',
+  useSameNameRequire: true
+});
+
+// 模块文件，会进行require包装
+fis.match('/src/**.js', {
+  parser: [
+    fis.plugin('babel-6.x', {
+      presets: ['es2015-loose', 'react', 'stage-3']
+    }),
+    fis.plugin('translate-es3ify', null, 'append')
+  ]
+});
+
+// no modules
+fis.match('/src/js/engine/**.js', {
+  parser: null,
+  isMod: false
+});
+
+fis.match('/src/js/page/**.js', {
+  isMod: false
+});
+
+fis.match('/src/(**)', {
+  release: '$1'
 });
 
 fis.match('::package', {

@@ -1,0 +1,23 @@
+{
+  "globals": {
+
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+        "jsx": true
+    }
+  },
+  "rules": {
+    "strict": [0],
+    "quotes": [0],
+    "generator-star-spacing": [0]
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "commonjs": true,
+    "es6": true
+  }
+}

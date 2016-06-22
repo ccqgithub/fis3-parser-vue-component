@@ -1,17 +1,11 @@
 
 <style lang="less">
 .index {
-  p {
+  > p {
     line-height: 50px;
     text-align: center;
     background: rgb(240, 203, 210);
     border: 1px solid #ddd;
-  }
-
-  img {
-    display: block;
-    width: 100%;
-    margin-top: 20px;
   }
 }
 </style>
@@ -19,12 +13,27 @@
 <template>
   <div class="index">
     <p>fis3-parser-vue-component demo runing ~</p>
-    <img src="../image/1.jpg" alt="" />
+    <component-a></component-a>
+    <component-b></component-b>
+    <component-c></component-c>
   </div>
 </template>
 
 <script>
-  module.exports = {
+  import ComponentA from './a';
+  import ComponentB from './b';
 
+  export default {
+    components: {
+      ComponentA,
+      ComponentB,
+      ComponentC: require('./c')
+    },
+    created() {
+      console.log('Index page created!');
+    },
+    methods: {
+      //
+    }
   }
 </script>

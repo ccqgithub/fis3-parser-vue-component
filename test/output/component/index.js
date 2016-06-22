@@ -18,7 +18,7 @@ define('src/component/index.vue', function(require, exports, module) {
     components: {
       ComponentA: _a2["default"],
       ComponentB: _b2["default"],
-      ComponentC: require('src/component/c.vue')
+      ComponentC: require('src/component/c.vue')["default"]
     },
     created: function created() {
       console.log('Index page created!');

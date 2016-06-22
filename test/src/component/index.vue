@@ -27,7 +27,7 @@
     components: {
       ComponentA,
       ComponentB,
-      ComponentC: require('./c')
+      ComponentC: require('./c').default
     },
     created() {
       console.log('Index page created!');

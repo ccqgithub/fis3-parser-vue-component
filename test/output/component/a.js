@@ -11,8 +11,10 @@ define('src/component/a.vue', function(require, exports, module) {
       //
     }
   };
-  module && module.exports && (module.exports.template = "<div class=\"component-a\">\n  Component A\n</div>");
+  var _vueTemplateString = "<div class=\"component-a\">\n  Component A\n</div>";
   
-  exports && exports["default"] && (exports["default"].template = "<div class=\"component-a\">\n  Component A\n</div>");
+  module && module.exports && (module.exports.template = _vueTemplateString);
+  
+  exports && exports["default"] && (exports["default"].template = _vueTemplateString);
 
 });

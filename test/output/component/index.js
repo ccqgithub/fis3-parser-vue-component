@@ -29,8 +29,10 @@ define('src/component/index.vue', function(require, exports, module) {
     }
   };
   
-  module && module.exports && (module.exports.template = "<div class=\"index\">\n  <p>fis3-parser-vue-component demo runing ~</p>\n  <component-a></component-a>\n  <component-b></component-b>\n  <component-c></component-c>\n</div>");
+  var _vueTemplateString = "<div class=\"index\">\n  <p>fis3-parser-vue-component demo runing ~</p>\n  <component-a></component-a>\n  <component-b></component-b>\n  <component-c></component-c>\n</div>";
   
-  exports && exports["default"] && (exports["default"].template = "<div class=\"index\">\n  <p>fis3-parser-vue-component demo runing ~</p>\n  <component-a></component-a>\n  <component-b></component-b>\n  <component-c></component-c>\n</div>");
+  module && module.exports && (module.exports.template = _vueTemplateString);
+  
+  exports && exports["default"] && (exports["default"].template = _vueTemplateString);
 
 });

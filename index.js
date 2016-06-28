@@ -19,6 +19,7 @@ function getAttribute(node, name) {
 // exports
 module.exports = function(content, file, conf) {
   var scriptStr = '';
+  var requireStyles = [];
   var templateFileName, templateFile;
   var fragment = parse5.parseFragment(content.toString(), {
     locationInfo: true
@@ -81,7 +82,7 @@ module.exports = function(content, file, conf) {
 
   // style
   output['style'].forEach(function(item, index) {
-    var styleFileName = file.realpathNoExt + '_vue_style_' + index + '.' + item.lang;
+    var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.' + item.lang;
     var styleFile = fis.file.wrap(styleFileName);
     styleFile.cache = file.cache;
     styleFile.setContent(output['style'][0].content);
@@ -98,7 +99,7 @@ module.exports = function(content, file, conf) {
     validateTemplate(output['template'][0].content).forEach(function(msg) {
       console.log(msg)
     })
-    templateFileName = file.realpathNoExt + '_vue_template' + '.' + output['template'][0].lang;
+    templateFileName = file.realpathNoExt + '-vue-template' + '.' + output['template'][0].lang;
     templateFile = fis.file.wrap(templateFileName);
     templateFile.cache = file.cache;
     templateFile.release = false;
@@ -108,9 +109,9 @@ module.exports = function(content, file, conf) {
       file.addLink(derived);
     });
     // file.derived.push(templateFile);
-    scriptStr += '\nvar templateString = ' + JSON.stringify(templateFile.getContent()) + ';\n'
-    scriptStr += '\nmodule && module.exports && (module.exports.template = templateString);\n';
-    scriptStr += '\nexports && exports.default && (exports.default.template = templateString);\n';
+    scriptStr += '\nvar _vueTemplateString = ' + JSON.stringify(templateFile.getContent()) + ';\n'
+    scriptStr += '\nmodule && module.exports && (module.exports.template = _vueTemplateString);\n';
+    scriptStr += '\nexports && exports.default && (exports.default.template = _vueTemplateString);\n';
   } else {
     scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';

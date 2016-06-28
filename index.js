@@ -108,8 +108,9 @@ module.exports = function(content, file, conf) {
       file.addLink(derived);
     });
     // file.derived.push(templateFile);
-    scriptStr += '\nmodule && module.exports && (module.exports.template = ' + JSON.stringify(templateFile.getContent()) + ');\n';
-    scriptStr += '\nexports && exports.default && (exports.default.template = ' + JSON.stringify(templateFile.getContent()) + ');\n';
+    scriptStr += '\nvar templateString = ' + JSON.stringify(templateFile.getContent()) + ';\n'
+    scriptStr += '\nmodule && module.exports && (module.exports.template = templateString);\n';
+    scriptStr += '\nexports && exports.default && (exports.default.template = templateString);\n';
   } else {
     scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';

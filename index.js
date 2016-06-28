@@ -20,7 +20,7 @@ function getAttribute(node, name) {
 module.exports = function(content, file, conf) {
   var scriptStr = '';
   var templateFileName, templateFile;
-  var fragment = parse5.parseFragment(content, {
+  var fragment = parse5.parseFragment(content.toString(), {
     locationInfo: true
   });
   var output = {

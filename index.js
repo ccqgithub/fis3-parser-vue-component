@@ -91,8 +91,8 @@ module.exports = function(content, file, conf) {
       file.addLink(derived);
     });
     file.derived.push(styleFile);
-    // file.addRequire(styleFile.getId());
-    requireStyles.push(styleFile.getId());
+    file.addRequire(styleFile.getId());
+    //requireStyles.push(styleFile.getId());
   });
 
   // template

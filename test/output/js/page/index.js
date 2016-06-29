@@ -21,7 +21,3 @@ var app = new _vue2["default"]({
     console.log('created');
   }
 });
-
-/**
- * @require 'src/less/index.less'
- */

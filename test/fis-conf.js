@@ -31,7 +31,8 @@ fis.match('src/**.vue', {
   rExt: 'js',
   useSameNameRequire: true,
   parser: [
-    parserVuePlugin,
+    // parserVuePlugin,
+    fis.plugin('vue-component'),
     fis.plugin('babel-6.x', {
       presets: ['es2015-loose', 'react', 'stage-3']
     }),

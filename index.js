@@ -91,7 +91,8 @@ module.exports = function(content, file, conf) {
       file.addLink(derived);
     });
     file.derived.push(styleFile);
-    file.addRequire(styleFile.getId());
+    // file.addRequire(styleFile.getId());
+    requireStyles.push(styleFile.getId());
   });
 
   // template
@@ -115,6 +116,14 @@ module.exports = function(content, file, conf) {
   } else {
     scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';
+  }
+
+  if (requireStyles.length) {
+    scriptStr += '\n/**';
+    requireStyles.forEach(function(style) {
+      scriptStr += '\n* @require ' + style;
+    });
+    scriptStr += '\n*/';
   }
 
   return scriptStr;

@@ -29,16 +29,20 @@ fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
+  parser: fis.plugin('vue-component', {
+      // 暂时还没有自定义配置哦
+  })
+});
+
+// 让 vue 里面的 js 可以用 es6
+fis.match('src/**.vue:js', {
   parser: [
-    fis.plugin('vue-component', {
-        // 暂时还没有自定义配置哦
-    }),
     fis.plugin('babel-6.x', {
       presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]
-});
+})
 ```
 
 # 测试demo

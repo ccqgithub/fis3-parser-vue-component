@@ -30,15 +30,18 @@ fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
+  parser: parserVuePlugin
+});
+
+fis.match('src/**.vue:js', {
   parser: [
-    // parserVuePlugin,
-    fis.plugin('vue-component'),
-    fis.plugin('babel-6.x', {
-      presets: ['es2015-loose', 'react', 'stage-3']
+    // fis.plugin('vue-component'),
+    fis.plugin('babel-5.x', {
+      // presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]
-});
+})
 
 fis.match('**.js', {
   isMod: true,
@@ -49,8 +52,8 @@ fis.match('**.js', {
 // 模块文件，会进行require包装
 fis.match('/src/**.js', {
   parser: [
-    fis.plugin('babel-6.x', {
-      presets: ['es2015-loose', 'react', 'stage-3']
+    fis.plugin('babel-5.x', {
+      // presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]

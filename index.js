@@ -80,37 +80,35 @@ module.exports = function(content, file, conf) {
     scriptStr += 'module.exports = {}';
   }
 
-  // style
-  output['style'].forEach(function(item, index) {
-    var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.' + item.lang;
-    var styleFile = fis.file.wrap(styleFileName);
-    styleFile.cache = file.cache;
-    styleFile.setContent(output['style'][0].content);
-    fis.compile.process(styleFile);
-    styleFile.links.forEach(function(derived) {
-      file.addLink(derived);
-    });
-    file.derived.push(styleFile);
-    file.addRequire(styleFile.getId());
-    //requireStyles.push(styleFile.getId());
-  });
-
   // template
   if (output['template'].length) {
     validateTemplate(output['template'][0].content).forEach(function(msg) {
       console.log(msg)
     })
-    templateFileName = file.realpathNoExt + '-vue-template' + '.' + output['template'][0].lang;
-    templateFile = fis.file.wrap(templateFileName);
-    templateFile.cache = file.cache;
-    templateFile.release = false;
-    templateFile.setContent(output['template'][0].content);
-    fis.compile.process(templateFile);
-    templateFile.links.forEach(function(derived) {
-      file.addLink(derived);
-    });
+    // templateFileName = file.realpathNoExt + '-vue-template' + '.' + output['template'][0].lang;
+    // templateFile = fis.file.wrap(templateFileName);
+    // templateFile.cache = file.cache;
+    // templateFile.release = false;
+    // templateFile.setContent(output['template'][0].content);
+    // fis.compile.process(templateFile);
+    // templateFile.links.forEach(function(derived) {
+    //   file.addLink(derived);
+    // });
     // file.derived.push(templateFile);
-    scriptStr += '\nvar _vueTemplateString = ' + JSON.stringify(templateFile.getContent()) + ';\n'
+    //
+    //
+
+
+    // 部分内容以 html 的方式编译。编译过程可以通过下面的规则命中，一般不需要加配置，已经自带 html 语言能力。
+    //
+    // fis.match('*.vue:template', {
+    //   parser: xxxx
+    // });
+    var templateContent = fis.compile.partial(output['template'][0].content, file, {
+      ext: 'template',
+      isHtmlLike: true
+    });
+    scriptStr += '\nvar _vueTemplateString = ' + JSON.stringify(templateContent) + ';\n'
     scriptStr += '\nmodule && module.exports && (module.exports.template = _vueTemplateString);\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = _vueTemplateString);\n';
   } else {
@@ -125,6 +123,28 @@ module.exports = function(content, file, conf) {
     });
     scriptStr += '\n*/';
   }
+
+
+  // 部分内容以 js 的方式编译一次。如果要支持 es6 需要这么配置。
+  // fis.match('*.vue:js', {
+  //   parser: fis.plugin('babel-6.x')
+  // })
+  scriptStr = fis.compile.partial(scriptStr, file, 'js');
+
+  // style
+  output['style'].forEach(function(item, index) {
+    var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.' + item.lang;
+    var styleFile = fis.file.wrap(styleFileName);
+    styleFile.cache = file.cache;
+    styleFile.setContent(output['style'][0].content);
+    fis.compile.process(styleFile);
+    styleFile.links.forEach(function(derived) {
+      file.addLink(derived);
+    });
+    file.derived.push(styleFile);
+    file.addRequire(styleFile.getId());
+    //requireStyles.push(styleFile.getId());
+  });
 
   return scriptStr;
 };

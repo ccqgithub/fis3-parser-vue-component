@@ -18,14 +18,25 @@ fis.hook('commonjs', {
   ]
 });
 
-// 用 less 解析
+// 禁用components，启用node_modules
+fis.unhook('components');
+fis.hook('node_modules');
+
+// 所有js文件
+fis.match('**.js', {
+  isMod: true,
+  rExt: 'js',
+  useSameNameRequire: true
+});
+
+// 用less解析所有less文件
 fis.match('*.less', {
   rExt: 'css',
   parser: [fis.plugin('less-2.x')],
   postprocessor: fis.plugin('autoprefixer'),
 });
 
-// vue
+// 编译vue组件
 fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
@@ -35,52 +46,45 @@ fis.match('src/**.vue', {
 
 fis.match('src/**.vue:js', {
   parser: [
-    // fis.plugin('vue-component'),
-    fis.plugin('babel-5.x', {
-      // presets: ['es2015-loose', 'react', 'stage-3']
+    fis.plugin('babel-6.x', {
+      presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]
 })
 
-fis.match('**.js', {
-  isMod: true,
-  rExt: 'js',
-  useSameNameRequire: true
-});
-
-// 模块文件，会进行require包装
+// 模块文件
 fis.match('/src/**.js', {
   parser: [
-    fis.plugin('babel-5.x', {
-      // presets: ['es2015-loose', 'react', 'stage-3']
+    fis.plugin('babel-6.x', {
+      presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]
 });
 
-// no modules
+// 非模块文件
 fis.match('/src/js/engine/**.js', {
   parser: null,
   isMod: false
 });
 
+// 页面直接引入的文件，不进行模块require包装
 fis.match('/src/js/page/**.js', {
   isMod: false
 });
-
-fis.match('/src/(**)', {
-  release: '$1'
-});
-
+ 
+// 打包
 fis.match('::package', {
   postpackager: fis.plugin('loader'),
 });
 
-// 禁用components
-fis.unhook('components');
-fis.hook('node_modules');
+// 发布
+fis.match('/src/(**)', {
+  release: '$1'
+});
 
+// 部署
 fis
   .media('local')
   .match('**', {

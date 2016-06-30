@@ -15,3 +15,7 @@ var app = new Vue({
     console.log('created');
   }
 });
+
+/**
+ * @require '../../less/index.less'
+ */

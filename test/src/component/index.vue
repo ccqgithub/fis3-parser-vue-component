@@ -1,5 +1,6 @@
 
 <style lang="less">
+@import "../less/other.less";
 .index {
   > p {
     line-height: 50px;
@@ -22,6 +23,8 @@
 <script>
   import ComponentA from './a';
   import ComponentB from './b';
+
+  // @require '../less/other2.less';
 
   export default {
     components: {

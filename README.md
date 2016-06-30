@@ -47,6 +47,8 @@ fis.match('src/**.vue:js', {
 
 # 测试demo
 
+`npm install`
+
 `cd test`, 编写代码…
 
 `npm install`

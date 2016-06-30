@@ -19,8 +19,7 @@ function getAttribute(node, name) {
 // exports
 module.exports = function(content, file, conf) {
   var scriptStr = '';
-  var requireStyles = [];
-  var templateFileName, templateFile;
+  var templateFileName, templateFile, templateContent;
   var fragment = parse5.parseFragment(content.toString(), {
     locationInfo: true
   });
@@ -85,26 +84,8 @@ module.exports = function(content, file, conf) {
     validateTemplate(output['template'][0].content).forEach(function(msg) {
       console.log(msg)
     })
-    // templateFileName = file.realpathNoExt + '-vue-template' + '.' + output['template'][0].lang;
-    // templateFile = fis.file.wrap(templateFileName);
-    // templateFile.cache = file.cache;
-    // templateFile.release = false;
-    // templateFile.setContent(output['template'][0].content);
-    // fis.compile.process(templateFile);
-    // templateFile.links.forEach(function(derived) {
-    //   file.addLink(derived);
-    // });
-    // file.derived.push(templateFile);
-    //
-    //
 
-
-    // 部分内容以 html 的方式编译。编译过程可以通过下面的规则命中，一般不需要加配置，已经自带 html 语言能力。
-    //
-    // fis.match('*.vue:template', {
-    //   parser: xxxx
-    // });
-    var templateContent = fis.compile.partial(output['template'][0].content, file, {
+    templateContent = fis.compile.partial(output['template'][0].content, file, {
       ext: 'template',
       isHtmlLike: true
     });
@@ -115,15 +96,6 @@ module.exports = function(content, file, conf) {
     scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';
   }
-
-  if (requireStyles.length) {
-    scriptStr += '\n/**';
-    requireStyles.forEach(function(style) {
-      scriptStr += '\n* @require ' + style;
-    });
-    scriptStr += '\n*/';
-  }
-
 
   // 部分内容以 js 的方式编译一次。如果要支持 es6 需要这么配置。
   // fis.match('*.vue:js', {
@@ -143,7 +115,6 @@ module.exports = function(content, file, conf) {
     });
     file.derived.push(styleFile);
     file.addRequire(styleFile.getId());
-    //requireStyles.push(styleFile.getId());
   });
 
   return scriptStr;

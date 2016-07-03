@@ -105,16 +105,18 @@ module.exports = function(content, file, conf) {
 
   // style
   output['style'].forEach(function(item, index) {
-    var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.' + item.lang;
-    var styleFile = fis.file.wrap(styleFileName);
-    styleFile.cache = file.cache;
-    styleFile.setContent(output['style'][0].content);
-    fis.compile.process(styleFile);
-    styleFile.links.forEach(function(derived) {
-      file.addLink(derived);
-    });
-    file.derived.push(styleFile);
-    file.addRequire(styleFile.getId());
+    if (item.content) {
+      var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.' + item.lang;
+      var styleFile = fis.file.wrap(styleFileName);
+      styleFile.cache = file.cache;
+      styleFile.setContent(output['style'][0].content);
+      fis.compile.process(styleFile);
+      styleFile.links.forEach(function(derived) {
+        file.addLink(derived);
+      });
+      file.derived.push(styleFile);
+      file.addRequire(styleFile.getId());
+    }
   });
 
   return scriptStr;

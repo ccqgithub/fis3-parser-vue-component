@@ -43,13 +43,21 @@ fis.match('src/**.vue', {
   useSameNameRequire: true,
   parser: parserVuePlugin
 });
-
+ 
 fis.match('src/**.vue:js', {
   parser: [
     fis.plugin('babel-6.x', {
       presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
+  ]
+})
+
+fis.match('src/**.vue:jade', {
+  parser: [
+    fis.plugin('jade', {
+      //
+    })
   ]
 })
 
@@ -73,7 +81,7 @@ fis.match('/src/js/engine/**.js', {
 fis.match('/src/js/page/**.js', {
   isMod: false
 });
- 
+
 // 打包
 fis.match('::package', {
   postpackager: fis.plugin('loader'),

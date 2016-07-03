@@ -2,6 +2,8 @@ var path = require('path');
 var parse5 = require('parse5');
 var validateTemplate = require('vue-template-validator');
 var deindent = require('de-indent');
+var objectAssign = require('object-assign');
+var vueComponentNum = 0;
 
 function getAttribute(node, name) {
   if (node.attrs) {
@@ -20,10 +22,27 @@ function getAttribute(node, name) {
 module.exports = function(content, file, conf) {
   var scriptStr = '';
   var templateFileName, templateFile, templateContent;
-  var fragment = parse5.parseFragment(content.toString(), {
+  var fragment, output, configs, vuecId, jsLang;
+
+  // configs
+  configs = objectAssign({
+    cssScopedFlag: 'vuec',
+  }, conf);
+
+  // 兼容content为buffer的情况
+  content = content.toString();
+
+  // scope replace
+  vueComponentNum ++;
+  vuecId = 'vue-component-' + vueComponentNum;
+  content = content.replace(new RegExp(configs.cssScopedFlag, 'g'), vuecId);
+
+  // parse
+  fragment = parse5.parseFragment(content.toString(), {
     locationInfo: true
   });
-  var output = {
+
+  output = {
     template: [],
     style: [],
     script: []
@@ -33,7 +52,6 @@ module.exports = function(content, file, conf) {
     var type = node.tagName;
     var lang = getAttribute(node, 'lang');
     var src = getAttribute(node, 'src');
-    var scoped = getAttribute(node, 'scoped') != null;
     var warnings = null;
     var content;
 
@@ -75,20 +93,23 @@ module.exports = function(content, file, conf) {
   // script
   if (output['script'].length) {
     scriptStr = output['script'][0].content;
+    jsLang = output['script'][0].lang;
   } else {
     scriptStr += 'module.exports = {}';
+    jsLang = 'js';
   }
 
   // template
   if (output['template'].length) {
+    templateContent = fis.compile.partial(output['template'][0].content, file, {
+      ext: output['template'][0].lang,
+      isHtmlLike: true
+    });
+
     validateTemplate(output['template'][0].content).forEach(function(msg) {
       console.log(msg)
     })
 
-    templateContent = fis.compile.partial(output['template'][0].content, file, {
-      ext: 'template',
-      isHtmlLike: true
-    });
     scriptStr += '\nvar _vueTemplateString = ' + JSON.stringify(templateContent) + ';\n'
     scriptStr += '\nmodule && module.exports && (module.exports.template = _vueTemplateString);\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = _vueTemplateString);\n';
@@ -101,7 +122,10 @@ module.exports = function(content, file, conf) {
   // fis.match('*.vue:js', {
   //   parser: fis.plugin('babel-6.x')
   // })
-  scriptStr = fis.compile.partial(scriptStr, file, 'js');
+  scriptStr = fis.compile.partial(scriptStr, file, {
+    ext: jsLang,
+    isJsLike: true
+  });
 
   // style
   output['style'].forEach(function(item, index) {
@@ -109,7 +133,8 @@ module.exports = function(content, file, conf) {
       var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.' + item.lang;
       var styleFile = fis.file.wrap(styleFileName);
       styleFile.cache = file.cache;
-      styleFile.setContent(output['style'][0].content);
+      styleFile.isCssLike = true;
+      styleFile.setContent(item.content);
       fis.compile.process(styleFile);
       styleFile.links.forEach(function(derived) {
         file.addLink(derived);

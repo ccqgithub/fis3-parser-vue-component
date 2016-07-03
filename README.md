@@ -12,9 +12,9 @@
 
 3. `template`标签的内容为Vue组件的模板，`template`标签同样有`lang`属性，默认`html`，会进行html特性处理，模板的内容最终会输出到`module.exports.template`中。
 
-4. `script`标签为文件最后输出的内容，这里不再提供`lang`属性，如果是coffe等非js文件，请在`fis-conf.js`中配置。
+4. `script`标签为文件最后输出的内容，支持`lang`属性。
 
-# 组件编写规范
+## 组件编写规范
 
 `style`标签可以有多个，`template`和`script`标签只能有一个，具体请参考[vue 单文件组件](http://vuejs.org.cn/guide/application.html)。
 
@@ -24,17 +24,33 @@
 
 配置：
 ```javascript:;
-// vue
+// vue组件配置
 fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
   parser: fis.plugin('vue-component', {
-      // 暂时还没有自定义配置哦
+    cssScopeFlag: 'vuec'
   })
 });
 
-// 让 vue 里面的 js 可以用 es6
+// vue组件中的样式处理
+fis.match('src/**.less', {
+  rExt: 'css',
+  parser: fis.plugin('less')
+});
+
+// vue组件中的模板处理
+fis.match('src/**.vue:jade', {
+  rExt: 'css',
+  parser: fis.plugin('less')
+});
+
+// vue组件中的js处理
+fis.match('src/**.vue:coffee', {
+  rExt: 'html',
+  parser: fis.plugin('jade')
+})
 fis.match('src/**.vue:js', {
   parser: [
     fis.plugin('babel-6.x', {
@@ -45,7 +61,37 @@ fis.match('src/**.vue:js', {
 })
 ```
 
-# 测试demo
+## css scoped支持
+
+> 为了保证每一个组件样式的独立性，是当前组件定义的样式只在当前的组件内生效，引入css scoped机制。
+
+1. 在模板的元素上（一般是根节点）加上scoped标志，默认为'vuec'， 你可以通过`cssScopedFlag`自定义。可以加在class，或者属性，或者id。
+```html
+<template>
+  <div class="test" vuec></div>
+</template>
+```
+2. 在样式中使用scoped标志。
+```css
+.test[vuec] {
+  //
+}
+```
+3. scoped标志会解析为组件唯一id：`vue-component-{index}`;
+
+4. 配置：scoped标志默认为'vuec'，你可以自定义。
+```js
+fis.match('src/**.vue', {
+  isMod: true,
+  rExt: 'js',
+  useSameNameRequire: true,
+  parser: fis.plugin('vue-component', {
+    cssScopedFlag: 'myCssScopedFlag'
+  })
+});
+```
+
+## 测试demo
 
 `npm install`
 

@@ -1,7 +1,7 @@
 
 <style lang="less">
 @import "../less/other.less";
-.index {
+.index[vuec] {
   > p {
     line-height: 50px;
     text-align: center;
@@ -11,18 +11,28 @@
 }
 </style>
 
+<style lang="less">
+.style2 {
+  width: auto;
+}
+</style>
+<style lang="less">
+</style>
+
 <template>
-  <div class="index">
+  <div class="index" vuec>
     <p>fis3-parser-vue-component demo runing ~</p>
     <component-a></component-a>
     <component-b></component-b>
     <component-c></component-c>
+    <component-jade></component-jade>
   </div>
 </template>
 
 <script>
   import ComponentA from './a';
   import ComponentB from './b';
+  import ComponentJade from './jade';
 
   // @require '../less/other2.less';
 
@@ -30,6 +40,7 @@
     components: {
       ComponentA,
       ComponentB,
+      ComponentJade,
       ComponentC: require('./c').default
     },
     created() {

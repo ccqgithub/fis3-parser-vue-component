@@ -15,6 +15,7 @@
     "babel-preset-es2015-loose": "^7.0.0",
     "babel-preset-react": "^6.5.0",
     "fis-parser-babel-6.x": "^1.0.0",
+    "fis-parser-jade": "0.0.12",
     "fis3-hook-commonjs": "^0.1.22",
     "fis3-hook-node_modules": "^2.2.3",
     "fis3-parser-less-2.x": "^0.1.4",

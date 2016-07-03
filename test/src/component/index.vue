@@ -11,9 +11,11 @@
 }
 </style>
 
-<style lang="less">
+<style lang="scss">
+$blue : #1875e7;　
 .style2 {
   width: auto;
+  color: $blue;
 }
 </style>
 <style lang="less">

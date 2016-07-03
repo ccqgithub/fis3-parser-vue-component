@@ -36,6 +36,12 @@ fis.match('*.less', {
   postprocessor: fis.plugin('autoprefixer'),
 });
 
+fis.match('*.scss', {
+  rExt: 'css',
+  parser: [fis.plugin('node-sass')],
+  postprocessor: fis.plugin('autoprefixer'),
+});
+ 
 // 编译vue组件
 fis.match('src/**.vue', {
   isMod: true,
@@ -43,7 +49,7 @@ fis.match('src/**.vue', {
   useSameNameRequire: true,
   parser: parserVuePlugin
 });
- 
+
 fis.match('src/**.vue:js', {
   parser: [
     fis.plugin('babel-6.x', {

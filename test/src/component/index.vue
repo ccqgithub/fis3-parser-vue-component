@@ -12,6 +12,7 @@
 </style>
 
 <style lang="scss">
+@import "../scss/test.scss";
 $blue : #1875e7;　
 .style2 {
   width: auto;

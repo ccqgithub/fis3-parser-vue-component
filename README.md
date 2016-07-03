@@ -18,14 +18,20 @@
 
 `style`标签可以有多个，`template`和`script`标签只能有一个，具体请参考[vue 单文件组件](http://vuejs.org.cn/guide/application.html)。
 
+## 注意
+
+- 组件中的样式、模板、脚本都会先进行片段处理（片段不产出），对应的配置应该为`fis.match('**.vue:lang', {})`的方式。
+- 每一个style标签会对应产出一个css文件，与vue组件同目录。
+- script标签内容编译后，为组件的最终产出内容。
+
 ## 安装配置
 
 安装：`npm install fis3-parser-vue-component --save-dev`。
 
 配置：
 ```javascript:;
-// vue组件配置
-fis.match('src/**.vue', {
+// vue组件本身配置
+fis.match('src/vue/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
@@ -34,23 +40,30 @@ fis.match('src/**.vue', {
   })
 });
 
-// vue组件中的样式处理
-fis.match('src/**.less', {
+// vue组件中产出的css处理。
+fis.match('src/(vue/**.css)', {
+  release: 'css/$1'
+});
+
+// vue组件中的less片段处理
+fis.match('src/vue/**.vue:less', {
   rExt: 'css',
   parser: fis.plugin('less')
 });
 
-// vue组件中的模板处理
+// vue组件中的sass片段处理
+fis.match('src/vue/**.vue:scss', {
+  rExt: 'css',
+  parser: fis.plugin('node-sass')
+});
+
+// vue组件中的jade模板片段处理
 fis.match('src/**.vue:jade', {
   rExt: 'css',
   parser: fis.plugin('less')
 });
 
-// vue组件中的js处理
-fis.match('src/**.vue:coffee', {
-  rExt: 'html',
-  parser: fis.plugin('jade')
-})
+// vue组件中js片段处理。
 fis.match('src/**.vue:js', {
   parser: [
     fis.plugin('babel-6.x', {
@@ -58,6 +71,12 @@ fis.match('src/**.vue:js', {
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]
+})
+
+// vue组件中的产出coffee片段处理
+fis.match('src/**.vue:coffee', {
+  rExt: 'html',
+  parser: fis.plugin('jade')
 })
 ```
 

@@ -17,7 +17,7 @@ fis.hook('commonjs', {
 
   ]
 });
-
+  
 // 禁用components，启用node_modules
 fis.unhook('components');
 fis.hook('node_modules');
@@ -29,19 +29,6 @@ fis.match('**.js', {
   useSameNameRequire: true
 });
 
-// 用less解析所有less文件
-fis.match('*.less', {
-  rExt: 'css',
-  parser: [fis.plugin('less-2.x')],
-  postprocessor: fis.plugin('autoprefixer'),
-});
-
-fis.match('*.scss', {
-  rExt: 'css',
-  parser: [fis.plugin('node-sass')],
-  postprocessor: fis.plugin('autoprefixer'),
-});
- 
 // 编译vue组件
 fis.match('src/**.vue', {
   isMod: true,
@@ -66,6 +53,18 @@ fis.match('src/**.vue:jade', {
     })
   ]
 })
+
+fis.match('src/**.vue:less', {
+  rExt: 'css',
+  parser: [fis.plugin('less-2.x')],
+  postprocessor: fis.plugin('autoprefixer'),
+});
+
+fis.match('src/**.vue:scss', {
+  rExt: 'css',
+  parser: [fis.plugin('node-sass')],
+  postprocessor: fis.plugin('autoprefixer'),
+});
 
 // 模块文件
 fis.match('/src/**.js', {

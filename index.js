@@ -130,11 +130,19 @@ module.exports = function(content, file, conf) {
   // style
   output['style'].forEach(function(item, index) {
     if (item.content) {
-      var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.' + item.lang;
+      var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.css';
       var styleFile = fis.file.wrap(styleFileName);
+      var styleContent;
+
+      // css也采用片段编译，更好的支持less、sass等其他语言
+      styleContent = fis.compile.partial(item.content, file, {
+        ext: item.lang,
+        isCssLike: true
+      });
+
       styleFile.cache = file.cache;
       styleFile.isCssLike = true;
-      styleFile.setContent(item.content);
+      styleFile.setContent(styleContent);
       fis.compile.process(styleFile);
       styleFile.links.forEach(function(derived) {
         file.addLink(derived);

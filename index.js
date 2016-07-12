@@ -130,7 +130,8 @@ module.exports = function(content, file, conf) {
   // style
   output['style'].forEach(function(item, index) {
     if (item.content) {
-      var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.css';
+	    var _index = (index == 0) ? '' : '_'+index;
+      var styleFileName = file.realpathNoExt + _index + '.css';
       var styleFile = fis.file.wrap(styleFileName);
       var styleContent;
 

@@ -87,18 +87,18 @@ fis.match('src/**.vue:coffee', {
 1. 在模板的元素上（一般是根节点）加上scoped标志，默认为`__vuec__`， 你可以通过`cssScopedFlag`自定义。可以加在class，或者属性，或者id。
 ```html
 <template>
-  <div class="test" vuec></div>
+  <div class="test" __vuec__></div>
 </template>
 ```
 2. 在样式中使用scoped标志。
 ```css
-.test[vuec] {
+.test[__vuec__] {
   //
 }
 ```
 3. scoped标志会解析为组件唯一id：`vue-component-{index}`;
 
-4. 配置：scoped标志默认为'vuec'，你可以自定义。
+4. 配置：scoped标志默认为'__vuec__'，你可以自定义。
 ```js
 fis.match('src/**.vue', {
   isMod: true,

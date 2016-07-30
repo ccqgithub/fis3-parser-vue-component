@@ -84,7 +84,7 @@ fis.match('src/**.vue:coffee', {
 
 > 为了保证每一个组件样式的独立性，是当前组件定义的样式只在当前的组件内生效，引入css scoped机制。
 
-1. 在模板的元素上（一般是根节点）加上scoped标志，默认为'vuec'， 你可以通过`cssScopedFlag`自定义。可以加在class，或者属性，或者id。
+1. 在模板的元素上（一般是根节点）加上scoped标志，默认为`__vuec__`， 你可以通过`cssScopedFlag`自定义。可以加在class，或者属性，或者id。
 ```html
 <template>
   <div class="test" vuec></div>
@@ -105,7 +105,8 @@ fis.match('src/**.vue', {
   rExt: 'js',
   useSameNameRequire: true,
   parser: fis.plugin('vue-component', {
-    cssScopedFlag: 'myCssScopedFlag'
+    cssScopedFlag: '__vuec__', // 要替换成vuec id的scoped标志
+    cssScopedIdPrefix: '__vuec__' // vuec id 前缀
   })
 });
 ```

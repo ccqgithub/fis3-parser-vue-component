@@ -1,7 +1,7 @@
 
 <style lang="less">
 @import "../less/other.less";
-.index[vuec] {
+.index[__vuec__] {
   > p {
     line-height: 50px;
     text-align: center;
@@ -23,7 +23,7 @@ $blue : #1875e7;　
 </style>
 
 <template>
-  <div class="index" vuec>
+  <div class="index" __vuec__>
     <p>fis3-parser-vue-component demo runing ~</p>
     <component-a></component-a>
     <component-b></component-b>

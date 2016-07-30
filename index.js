@@ -26,7 +26,8 @@ module.exports = function(content, file, conf) {
 
   // configs
   configs = objectAssign({
-    cssScopedFlag: 'vuec',
+    cssScopedFlag: '__vuec__',
+    cssScopedIdPrefix: '__vuec__'
   }, conf);
 
   // 兼容content为buffer的情况
@@ -34,8 +35,17 @@ module.exports = function(content, file, conf) {
 
   // scope replace
   vueComponentNum ++;
-  vuecId = 'vue-component-' + vueComponentNum;
-  content = content.replace(new RegExp(configs.cssScopedFlag, 'g'), vuecId);
+  vuecId = configs.cssScopedIdPrefix + vueComponentNum;
+  content = replaceScopedFlag(content);
+
+  // replace scoped flag
+  function replaceScopedFlag(str) {
+    var reg = new RegExp('([^a-zA-Z0-9\-_])('+ configs.cssScopedFlag +')([^a-zA-Z0-9\-_])', 'g');
+    str = str.replace(reg, function($0, $1, $2, $3) {
+      return $1 + vuecId + $3;
+    });
+    return str;
+  }
 
   // parse
   fragment = parse5.parseFragment(content.toString(), {
@@ -151,6 +161,9 @@ module.exports = function(content, file, conf) {
       file.addRequire(styleFile.getId());
     }
   });
+
+  // 处理一遍scoped css
+  scriptStr = replaceScopedFlag(scriptStr);
 
   return scriptStr;
 };

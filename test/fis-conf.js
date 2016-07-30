@@ -17,7 +17,7 @@ fis.hook('commonjs', {
 
   ]
 });
-  
+
 // 禁用components，启用node_modules
 fis.unhook('components');
 fis.hook('node_modules');
@@ -34,7 +34,7 @@ fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
-  parser: parserVuePlugin
+  parser: parserVuePlugin 
 });
 
 fis.match('src/**.vue:js', {

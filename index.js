@@ -22,10 +22,11 @@ function getAttribute(node, name) {
 module.exports = function(content, file, conf) {
   var scriptStr = '';
   var templateFileName, templateFile, templateContent;
-  var fragment, output, configs, vuecId, jsLang;
+  var fragment, output, configs, vuecId, jsLang, moduleID;
 
   // configs
   configs = objectAssign({
+    moduleIDFlag: '__module__',
     cssScopedFlag: '__vuec__',
     cssScopedIdPrefix: '__vuec__'
   }, conf);
@@ -34,15 +35,34 @@ module.exports = function(content, file, conf) {
   content = content.toString();
 
   // scope replace
-  vueComponentNum ++;
+  vueComponentNum++;
   vuecId = configs.cssScopedIdPrefix + vueComponentNum;
-  content = replaceScopedFlag(content);
+  moduleID = getModuleID();
+  content = replaceFlag(content);
 
-  // replace scoped flag
-  function replaceScopedFlag(str) {
-    var reg = new RegExp('([^a-zA-Z0-9\-_])('+ configs.cssScopedFlag +')([^a-zA-Z0-9\-_])', 'g');
+  // get moduleId
+  function getModuleID() {
+    var id = file.moduleId;
+    if(id) {
+      id = id.replace(/\.\w+$/, '').replace(/[:\/\\\.]+/g,'-');
+    }
+    return id;
+  }
+
+  // replace flags
+  function replaceFlag(str) {
+    var reg = new RegExp('([^a-zA-Z0-9\-_])(' + configs.cssScopedFlag + '|'+ configs.moduleIDFlag +')([^a-zA-Z0-9\-_])', 'g');
     str = str.replace(reg, function($0, $1, $2, $3) {
-      return $1 + vuecId + $3;
+      var repTxt = '';
+      switch($2) {
+        case configs.cssScopedFlag:
+          repTxt = vuecId;
+          break;
+        case configs.moduleIDFlag:
+          repTxt = moduleID;
+          break;
+      }
+      return $1 + repTxt + $3;
     });
     return str;
   }
@@ -163,7 +183,7 @@ module.exports = function(content, file, conf) {
   });
 
   // 处理一遍scoped css
-  scriptStr = replaceScopedFlag(scriptStr);
+  scriptStr = replaceFlag(scriptStr);
 
   return scriptStr;
 };

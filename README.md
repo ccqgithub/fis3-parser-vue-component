@@ -111,6 +111,36 @@ fis.match('src/**.vue', {
 });
 ```
 
+## moduleId支持
+> 也可以将样式名称定义为模块id
+
+1. 在模板样式使用`__module__`作为样式名称
+```css
+.__module__ {
+  // css here
+}
+```
+```html
+<template>
+  <div class="__module__"></div>
+</template>
+```
+
+2. 配置：默认模块id标志为`__module__`，可以自定义。
+```js
+fis.match('src/**/(*).vue', {
+  isMod: true,
+  rExt: 'js',
+  moduleId: 'vue-$1',	// fis默认的模块id为文件路径，比较长，你可以自定义
+  useSameNameRequire: true,
+  parser: fis.plugin('vue-component', {
+    moduleIDFlag: '__module__', // 替换成想要的moduleId标志
+  })
+});
+```
+
+
+
 ## 测试demo
 
 `npm install`

@@ -33,7 +33,7 @@ module.exports = function(content, file, conf) {
   content = content.toString();
 
   // scope replace
-  vuecId = configs.cssScopedIdPrefix +  + fis.util.md5(file.subpath, 8);
+  vuecId = configs.cssScopedIdPrefix + fis.util.md5(file.subpath, 8);
   content = replaceScopedFlag(content);
 
   // replace scoped flag

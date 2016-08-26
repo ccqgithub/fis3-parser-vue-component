@@ -3,7 +3,6 @@ var parse5 = require('parse5');
 var validateTemplate = require('vue-template-validator');
 var deindent = require('de-indent');
 var objectAssign = require('object-assign');
-var vueComponentNum = 0;
 
 function getAttribute(node, name) {
   if (node.attrs) {
@@ -34,8 +33,7 @@ module.exports = function(content, file, conf) {
   content = content.toString();
 
   // scope replace
-  vueComponentNum ++;
-  vuecId = configs.cssScopedIdPrefix + vueComponentNum;
+  vuecId = configs.cssScopedIdPrefix + fis.util.md5(file.subpath, 8);
   content = replaceScopedFlag(content);
 
   // replace scoped flag

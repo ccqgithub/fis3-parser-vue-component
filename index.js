@@ -3,6 +3,7 @@ var parse5 = require('parse5');
 var validateTemplate = require('vue-template-validator');
 var deindent = require('de-indent');
 var objectAssign = require('object-assign');
+var hashSum = require('hash-sum');
 
 function getAttribute(node, name) {
   if (node.attrs) {
@@ -26,14 +27,21 @@ module.exports = function(content, file, conf) {
   // configs
   configs = objectAssign({
     cssScopedFlag: '__vuec__',
-    cssScopedIdPrefix: '__vuec__'
+    cssScopedIdPrefix: '_v-',
+    cssScopedHashType: 'sum',
+    cssScopedHashLength: 8,
+    styleNameJoin: ''
   }, conf);
 
   // 兼容content为buffer的情况
   content = content.toString();
 
   // scope replace
-  vuecId = configs.cssScopedIdPrefix + fis.util.md5(file.subpath, 8);
+  if (configs.cssScopedType == 'sum') {
+    vuecId = configs.cssScopedIdPrefix + hashSum(file.subpath);
+  } else {
+    vuecId = configs.cssScopedIdPrefix + fis.util.md5(file.subpath, configs.cssScopedHashLength);
+  }
   content = replaceScopedFlag(content);
 
   // replace scoped flag
@@ -138,9 +146,15 @@ module.exports = function(content, file, conf) {
   // style
   output['style'].forEach(function(item, index) {
     if (item.content) {
-      var styleFileName = file.realpathNoExt + '-vue-style-' + index + '.css';
-      var styleFile = fis.file.wrap(styleFileName);
-      var styleContent;
+      var styleFileName, styleFile, styleContent;
+
+      if (output['style'].length == 1) {
+        styleFileName = file.realpathNoExt + configs.styleNameJoin + '.css';
+      } else {
+        styleFileName = file.realpathNoExt + configs.styleNameJoin + '-' + index + '.css';
+      }
+
+      styleFile = fis.file.wrap(styleFileName);
 
       // css也采用片段编译，更好的支持less、sass等其他语言
       styleContent = fis.compile.partial(item.content, file, {

@@ -1,6 +1,6 @@
 {
   "name": "fis3-parser-vue-component",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "A parser plugin for fis3 to parser vue component.",
   "keywords": [
     "fis3",
@@ -12,6 +12,7 @@
   "main": "index.js",
   "dependencies": {
     "de-indent": "^1.0.2",
+    "hash-sum": "^1.0.2",
     "object-assign": "^4.1.0",
     "parse5": "^2.1.5",
     "vue-template-validator": "^1.1.5"

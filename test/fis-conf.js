@@ -34,7 +34,7 @@ fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
-  parser: parserVuePlugin 
+  parser: parserVuePlugin
 });
 
 fis.match('src/**.vue:js', {
@@ -54,16 +54,26 @@ fis.match('src/**.vue:jade', {
   ]
 })
 
-fis.match('src/**.vue:less', {
+fis.match('src/{**.vue:less,**.less}', {
   rExt: 'css',
   parser: [fis.plugin('less-2.x')],
-  postprocessor: fis.plugin('autoprefixer'),
+  postprocessor: fis.plugin('autoprefixer')
 });
 
-fis.match('src/**.vue:scss', {
+fis.match('src/{**.vue:scss,**.scss}', {
   rExt: 'css',
   parser: [fis.plugin('node-sass')],
   postprocessor: fis.plugin('autoprefixer'),
+});
+
+// 发布
+fis.match('/src/(**)', {
+  release: '$1'
+});
+
+//
+fis.match('src/(component/**.css)', {
+  release: 'static/$1'
 });
 
 // 模块文件
@@ -90,11 +100,6 @@ fis.match('/src/js/page/**.js', {
 // 打包
 fis.match('::package', {
   postpackager: fis.plugin('loader'),
-});
-
-// 发布
-fis.match('/src/(**)', {
-  release: '$1'
 });
 
 // 部署

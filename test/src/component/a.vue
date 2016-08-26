@@ -1,15 +1,5 @@
-
-<style lang="less">
-.component-a {
-  line-height: 50px;
-  text-align: center;
-  color: #fff;
-  background: rgb(227, 99, 61);
-}
-</style>
-
 <template>
-  <div class="component-a">
+  <div class="component-a" __vuec__>
     Component A
   </div>
 </template>
@@ -24,3 +14,17 @@
     }
   }
 </script>
+
+<style lang="less">
+body {
+  a {
+    color: inherit;
+  }
+}
+.component-a[__vuec__] {
+  line-height: 50px;
+  text-align: center;
+  color: #fff;
+  background: rgb(227, 99, 61);
+}
+</style>

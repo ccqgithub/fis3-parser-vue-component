@@ -126,9 +126,10 @@ module.exports = function(content, file, conf) {
       console.log(msg)
     })
 
-    scriptStr += '\nvar _vueTemplateString = ' + JSON.stringify(templateContent) + ';\n'
-    scriptStr += '\nmodule && module.exports && (module.exports.template = _vueTemplateString);\n';
-    scriptStr += '\nexports && exports.default && (exports.default.template = _vueTemplateString);\n';
+    scriptStr += '\n(function(template){\n'
+    scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
+    scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
+    scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';
   } else {
     scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';

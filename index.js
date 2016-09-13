@@ -126,7 +126,7 @@ module.exports = function(content, file, conf) {
       console.log(msg)
     })
 
-    scriptStr += '\n(function(template){\n'
+    scriptStr += '\n;\n(function(template){\n'
     scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
     scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
     scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';

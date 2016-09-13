@@ -1,6 +1,6 @@
 {
   "name": "fis3-parser-vue-component",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "A parser plugin for fis3 to parser vue component.",
   "keywords": [
     "fis3",

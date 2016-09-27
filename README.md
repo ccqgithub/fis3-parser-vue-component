@@ -142,3 +142,60 @@ fis.match('src/**.vue', {
 `fis3 release`
 
 `fis3 server start`
+
+## Vue2 JSX支持：
+
+> 使用vue 官方 babel插件[babel-plugin-transform-vue-jsx](https://github.com/vuejs/babel-plugin-transform-vue-jsx#usage).
+
+vue文件：
+```
+<script lang="jsx">
+export default {
+  render (h) {
+    return (
+      <div
+        // normal attributes or component props.
+        id="foo"
+        // DOM properties are prefixed with domProps-
+        domProps-innerHTML="bar"
+        // event listeners are prefixed with on- or nativeOn-
+        on-click={this.clickHandler}
+        nativeOn-click={this.nativeClickHandler}
+        // other special top-level properties
+        class={{ foo: true, bar: false }}
+        style={{ color: 'red', fontSize: '14px' }}
+        key="key"
+        ref="ref"
+        slot="slot">
+      </div>
+    )
+  }
+}
+</script>
+```
+
+安装babel插件：
+```
+npm install\
+  babel-plugin-syntax-jsx\
+  babel-plugin-transform-vue-jsx\
+  babel-helper-vue-jsx-merge-props\
+  --save-dev
+```
+
+fis相关配置
+```
+// vue组件中jsx片段处理。
+fis.match('src/**.vue:jsx', {
+  parser: [
+    fis.plugin('babel-6.x', {
+      presets: ['es2015-loose', 'stage-3'],
+      plugins: ["transform-vue-jsx"]
+    }),
+    //fis.plugin('translate-es3ify', null, 'append')
+  ]
+})
+```
+
+
+

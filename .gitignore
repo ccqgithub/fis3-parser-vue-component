@@ -4,6 +4,7 @@
 .DS_Store
 .grunt
 .npm
+.tag*
 
 npm-debug.log*
 

@@ -1,0 +1,10 @@
+.component-c {
+  line-height: 50px;
+  text-align: center;
+  color: #fff;
+  background: #259013;
+}
+.component-c img {
+  display: block;
+  width: 100%;
+}

@@ -126,12 +126,15 @@ fis.match('src/**.vue', {
     cssScopedIdPrefix: '_v-',   // hash前缀：_v-23j232jj
     cssScopedHashType: 'sum',   // hash生成模式，num：使用`hash-sum`, md5: 使用`fis.util.md5`
     cssScopedHashLength: 8,     // hash 长度，cssScopedHashType为md5时有效
-    styleNameJoin: ''           // 样式文件命名连接符 `component-a.css`
+    styleNameJoin: '',          // 样式文件命名连接符 `component-a.css`
+    runtimeOnly: true,          // vue@2.x 有润timeOnly模式，为ture时，template会在构建时转为render方法
   })
 });
 ```
 
 ## 测试demo
+
+> test 对应vue1， test2对应vue2
 
 `npm install`
 
@@ -196,6 +199,3 @@ fis.match('src/**.vue:jsx', {
   ]
 })
 ```
-
-
-

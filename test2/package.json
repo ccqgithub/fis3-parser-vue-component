@@ -9,17 +9,19 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vue": "^1.0.25"
+    "vue": "^2.1.6"
   },
   "devDependencies": {
     "babel-preset-es2015-loose": "^7.0.0",
+    "babel-preset-es2015-nostrict": "^6.6.2",
+    "babel-preset-es2015-without-strict": "0.0.4",
     "babel-preset-react": "^6.5.0",
     "fis-parser-babel-6.x": "^1.0.0",
     "fis-parser-jade": "0.0.12",
+    "fis-parser-node-sass": "^1.0.1",
     "fis3-hook-commonjs": "^0.1.22",
     "fis3-hook-node_modules": "^2.2.3",
     "fis3-parser-less-2.x": "^0.1.4",
-    "fis-parser-node-sass": "^1.0.1",
     "fis3-parser-translate-es3ify": "0.0.2",
     "fis3-parser-vue-component": "^1.2.1",
     "fis3-postpackager-loader": "^1.5.2",

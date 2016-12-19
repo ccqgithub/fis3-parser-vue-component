@@ -1,9 +1,12 @@
 var path = require('path');
+var chalk = require('chalk')
 var parse5 = require('parse5');
-var validateTemplate = require('vue-template-validator');
 var deindent = require('de-indent');
 var objectAssign = require('object-assign');
 var hashSum = require('hash-sum');
+var compiler = require('vue-template-compiler');
+var transpile = require('vue-template-es2015-compiler');
+var validateTemplate = require('vue-template-validator');
 
 function getAttribute(node, name) {
   if (node.attrs) {
@@ -30,7 +33,9 @@ module.exports = function(content, file, conf) {
     cssScopedIdPrefix: '_v-',
     cssScopedHashType: 'sum',
     cssScopedHashLength: 8,
-    styleNameJoin: ''
+    styleNameJoin: '',
+
+    runtimeOnly: false,
   }, conf);
 
   // 兼容content为buffer的情况
@@ -116,23 +121,61 @@ module.exports = function(content, file, conf) {
   }
 
   // template
-  if (output['template'].length) {
-    templateContent = fis.compile.partial(output['template'][0].content, file, {
-      ext: output['template'][0].lang,
-      isHtmlLike: true
-    });
+  if (configs.runtimeOnly) {
+    // runtimeOnly
 
-    validateTemplate(output['template'][0].content).forEach(function(msg) {
-      console.log(msg)
-    })
+    function toFunction (code) {
+      // console.log(code);
+      return transpile('function render () {' + code + '}')
+    }
 
-    scriptStr += '\n;\n(function(template){\n'
-    scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
-    scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
-    scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';
+    if (output['template'].length) {
+      templateContent = fis.compile.partial(output['template'][0].content, file, {
+        ext: output['template'][0].lang,
+        isHtmlLike: true
+      });
+
+      var compiled = compiler.compile(templateContent);
+      var renderFun, staticRenderFns;
+
+      if (compiled.errors.length) {
+        compiled.errors.forEach(function (err) {
+          console.error('\n' + chalk.red(err) + '\n')
+        });
+        throw new Error('Vue template compilation failed');
+      } else {
+        renderFun = toFunction(compiled.render);
+        staticRenderFns = '[' + compiled.staticRenderFns.map(toFunction).join(',') + ']';
+      }
+    } else {
+      renderFun = 'function(){}';
+      staticRenderFns = '[]';
+    }
+
+    scriptStr += '\n;\n(function(renderFun, staticRenderFns){\n'
+    scriptStr += '\nif(module && module.exports){ module.exports.render=renderFun; module.exports.staticRenderFns=staticRenderFns;}\n';
+    scriptStr += '\nif(exports && exports.default){ exports.default.render=renderFun; exports.default.staticRenderFns=staticRenderFns;}\n';
+    scriptStr += '\n})(' + renderFun + ',' + staticRenderFns + ');\n';
   } else {
-    scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
-    scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';
+    // template
+    if (output['template'].length) {
+      templateContent = fis.compile.partial(output['template'][0].content, file, {
+        ext: output['template'][0].lang,
+        isHtmlLike: true
+      });
+
+      validateTemplate(output['template'][0].content).forEach(function(msg) {
+        console.log(msg);
+      })
+
+      scriptStr += '\n;\n(function(template){\n'
+      scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
+      scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
+      scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';
+    } else {
+      scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
+      scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';
+    }
   }
 
   // 部分内容以 js 的方式编译一次。如果要支持 es6 需要这么配置。

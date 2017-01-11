@@ -29,6 +29,7 @@ $blue : #1875e7;　
     <component-b></component-b>
     <component-c></component-c>
     <component-jade></component-jade>
+    <test-bug></test-bug>
   </div>
 </template>
 
@@ -36,6 +37,7 @@ $blue : #1875e7;　
   import ComponentA from './a';
   import ComponentB from './b';
   import ComponentJade from './jade';
+  import TestBug from './test-bug';
 
   // @require '../less/other2.less';
 
@@ -44,6 +46,7 @@ $blue : #1875e7;　
       ComponentA,
       ComponentB,
       ComponentJade,
+      TestBug,
       ComponentC: require('./c')
     },
     created() {

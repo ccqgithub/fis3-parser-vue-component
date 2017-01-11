@@ -1,10 +1,10 @@
-<template>
+<template lang="html">
   <div class="component-a" __vuec__>
     Component A
   </div>
 </template>
 
-<script>
+<script lang="js">
   module.exports = {
     created() {
       console.log('component a created !');

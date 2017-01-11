@@ -2,7 +2,7 @@
 
 > [FIS3](http://fis.baidu.com/) parser 阶段插件，用于在fis3中编译[Vue](http://vuejs.org.cn/)组件。
 
-> 注意：版本`4.x`对应`vue@1.x`, 版本`5.x`对应`vue@2.x`。
+> 注意：版本`>=4.10.0 <5.0.0`对应`vue@1.x`, 版本`>= 5.1.0`对应`vue@2.x`。
 
 ## 原理
 

@@ -30,6 +30,22 @@
 
 安装：`npm install fis3-parser-vue-component --save-dev`。
 
+```js
+fis.match('src/**.vue', {
+  isMod: true,
+  rExt: 'js',
+  useSameNameRequire: true,
+  parser: fis.plugin('vue-component', {
+    ccssScopedFlag: '__vuec__', // 组件scoped占位符
+    cssScopedIdPrefix: '_v-',   // hash前缀：_v-23j232jj
+    cssScopedHashType: 'sum',   // hash生成模式，num：使用`hash-sum`, md5: 使用`fis.util.md5`
+    cssScopedHashLength: 8,     // hash 长度，cssScopedHashType为md5时有效
+    styleNameJoin: '',          // 样式文件命名连接符 `component-a.css`
+    runtimeOnly: true,          // vue@2.x 有润timeOnly模式，为ture时，template会在构建时转为render方法
+  })
+});
+```
+
 配置：
 ```javascript:;
 // vue组件本身配置
@@ -118,21 +134,6 @@ fis.match('src/**.vue:coffee', {
 3. scoped标志会根据文件路径生成唯一的hash字符串（如：`_v-23j232jj` ）;
 
 4. 配置：scoped标志默认为'__vuec__'，你可以自定义。
-```js
-fis.match('src/**.vue', {
-  isMod: true,
-  rExt: 'js',
-  useSameNameRequire: true,
-  parser: fis.plugin('vue-component', {
-    ccssScopedFlag: '__vuec__', // 组件scoped占位符
-    cssScopedIdPrefix: '_v-',   // hash前缀：_v-23j232jj
-    cssScopedHashType: 'sum',   // hash生成模式，num：使用`hash-sum`, md5: 使用`fis.util.md5`
-    cssScopedHashLength: 8,     // hash 长度，cssScopedHashType为md5时有效
-    styleNameJoin: '',          // 样式文件命名连接符 `component-a.css`
-    runtimeOnly: true,          // vue@2.x 有润timeOnly模式，为ture时，template会在构建时转为render方法
-  })
-});
-```
 
 ## 测试demo
 

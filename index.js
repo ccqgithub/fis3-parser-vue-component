@@ -54,6 +54,16 @@ module.exports = function(content, file, conf) {
     jsLang = 'js';
   }
 
+  // 部分内容以 js 的方式编译一次。如果要支持 cooffe 需要这么配置。
+  // 只针对预编译语言
+  // fis.match('*.vue:cooffe', {
+  //   parser: fis.plugin('cooffe')
+  // })
+  scriptStr = fis.compile.partial(scriptStr, file, {
+    ext: jsLang,
+    isJsLike: true
+  });
+
   // template
   if (configs.runtimeOnly) {
     // runtimeOnly
@@ -107,15 +117,6 @@ module.exports = function(content, file, conf) {
       scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';
     }
   }
-
-  // 部分内容以 js 的方式编译一次。如果要支持 es6 需要这么配置。
-  // fis.match('*.vue:js', {
-  //   parser: fis.plugin('babel-6.x')
-  // })
-  scriptStr = fis.compile.partial(scriptStr, file, {
-    ext: jsLang,
-    isJsLike: true
-  });
 
   // style
   output['styles'].forEach(function(item, index) {

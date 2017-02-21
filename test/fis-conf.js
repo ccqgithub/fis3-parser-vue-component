@@ -34,17 +34,14 @@ fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
-  parser: parserVuePlugin
-});
-
-fis.match('src/**.vue:js', {
   parser: [
+    parserVuePlugin,
     fis.plugin('babel-6.x', {
       presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]
-})
+});
 
 fis.match('src/**.vue:jade', {
   parser: [

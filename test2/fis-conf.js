@@ -34,20 +34,17 @@ fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
-  parser: function(content, file, conf) {
-    conf.runtimeOnly = true;
-    return parserVuePlugin(content, file, conf);
-  },
-});
-
-fis.match('src/**.vue:js', {
   parser: [
+    function(content, file, conf) {
+      conf.runtimeOnly = true;
+      return parserVuePlugin(content, file, conf);
+    },
     fis.plugin('babel-6.x', {
-      presets: ['es2015-without-strict', 'react', 'stage-3'],
+      presets: ['es2015-loose', 'react', 'stage-3']
     }),
     fis.plugin('translate-es3ify', null, 'append')
   ]
-})
+});
 
 fis.match('src/**.vue:jade', {
   parser: [

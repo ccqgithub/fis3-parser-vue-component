@@ -2,7 +2,11 @@
 
 > [FIS3](http://fis.baidu.com/) parser 阶段插件，用于在fis3中编译[Vue](http://vuejs.org.cn/)组件。
 
-> 注意：版本`>=4.10.0 <5.0.0`对应`vue@1.x`, 版本`>= 5.1.0`对应`vue@2.x`。
+## 注意
+
+> 版本`>=4.10.0 <5.0.0`对应`vue@1.x`, 版本`>= 5.1.0`对应`vue@2.x`。
+
+> 为避免重复编译，不建议再给`fis.match('**.vue:js')`配置插件，建议直接写在`fis.match('**.vue')`中。组件中的coffee等异构语言再使用片段编译`fis.match('**.vue:cooffe')`。
 
 ## 原理
 
@@ -14,7 +18,7 @@
 
 3. `template`标签的内容为Vue组件的模板，`template`标签同样有`lang`属性，默认`html`，会进行html特性处理，模板的内容最终会输出到`module.exports.template`中。
 
-4. `script`标签为文件最后输出的内容，支持`lang`属性。
+4. `script`标签为文件最后输出的内容(加入模板字符串)，支持`lang`属性。
 
 ## 组件编写规范
 
@@ -22,7 +26,7 @@
 
 ## 注意
 
-- 组件中的样式、模板、脚本都会先进行片段处理（片段不产出），对应的配置应该为`fis.match('**.vue:lang', {})`的方式, 由于片段编译只是内容编译，所以不能在片段中配置release等文件才有的特性，具体见下面`安装配置`。
+- 组件中的样式、模板、脚本都会先进行片段处理，对应的配置应该为`fis.match('**.vue:lang', {})`的方式, 由于片段编译只是内容编译，所以不能在片段中配置release等文件才有的特性，具体见下面`安装配置`。
 - 每一个style标签会对应产出一个css文件，与vue组件同目录, 可对其重新定义产出路径。
 - script标签内容编译后，为组件的最终产出内容。
 
@@ -35,19 +39,25 @@ fis.match('src/**.vue', {
   isMod: true,
   rExt: 'js',
   useSameNameRequire: true,
-  parser: fis.plugin('vue-component', {
-    // vue@2.x runtimeOnly
-    runtimeOnly: true,          // vue@2.x 有润timeOnly模式，为ture时，template会在构建时转为render方法
+  parser: [
+    fis.plugin('vue-component', {
+      // vue@2.x runtimeOnly
+      runtimeOnly: true,          // vue@2.x 有润timeOnly模式，为ture时，template会在构建时转为render方法
 
-    // styleNameJoin
-    styleNameJoin: '',          // 样式文件命名连接符 `component-xx-a.css`
+      // styleNameJoin
+      styleNameJoin: '',          // 样式文件命名连接符 `component-xx-a.css`
 
-    // css scoped
-    ccssScopedFlag: '__vuec__', // 组件scoped占位符
-    cssScopedIdPrefix: '_v-',   // hash前缀：_v-23j232jj
-    cssScopedHashType: 'sum',   // hash生成模式，num：使用`hash-sum`, md5: 使用`fis.util.md5`
-    cssScopedHashLength: 8,     // hash 长度，cssScopedHashType为md5时有效
-  })
+      // css scoped
+      ccssScopedFlag: '__vuec__', // 组件scoped占位符
+      cssScopedIdPrefix: '_v-',   // hash前缀：_v-23j232jj
+      cssScopedHashType: 'sum',   // hash生成模式，num：使用`hash-sum`, md5: 使用`fis.util.md5`
+      cssScopedHashLength: 8,     // hash 长度，cssScopedHashType为md5时有效
+    }),
+    fis.plugin('babel-6.x', {
+      presets: ['es2015-loose', 'react', 'stage-3']
+    }),
+    fis.plugin('translate-es3ify', null, 'append')
+  ]
 });
 ```
 
@@ -92,20 +102,11 @@ fis.match('src/**.vue:jade', {
   parser: fis.plugin('less')
 });
 
-// vue组件中js片段处理。
-fis.match('src/**.vue:js', {
-  parser: [
-    fis.plugin('babel-6.x', {
-      presets: ['es2015-loose', 'react', 'stage-3']
-    }),
-    fis.plugin('translate-es3ify', null, 'append')
-  ]
-})
-
-// vue组件中的产出coffee片段处理
+// vue组件中coffee片段处理。
 fis.match('src/**.vue:coffee', {
-  rExt: 'html',
-  parser: fis.plugin('jade')
+  parser: [
+    fis.plugin('cooffe')
+  ]
 })
 ```
 

@@ -130,7 +130,7 @@ module.exports = function(content, file, conf) {
       }
 
       styleFile = fis.file.wrap(styleFileName);
-
+      
       // css也采用片段编译，更好的支持less、sass等其他语言
       styleContent = fis.compile.partial(item.content, file, {
         ext: item.lang || 'css',

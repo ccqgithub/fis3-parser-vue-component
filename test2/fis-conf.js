@@ -2,7 +2,7 @@ var path = require('path');
 var parserVuePlugin = require('../index');
 
 // 需要构建的文件
-fis.set('project.fileType.text', 'vue');
+fis.set('project.fileType.text', 'vue,map');
 fis.set('project.files', ['src/**']);
 fis.set('project.ignore', fis.get('project.ignore').concat(['output/**', 'DS_store']));
 
@@ -39,6 +39,14 @@ fis.match('src/**.vue', {
       conf.runtimeOnly = true;
       return parserVuePlugin(content, file, conf);
     },
+  ]
+});
+
+fis.match('src/**.vue:js', {
+  isMod: true,
+  rExt: 'js',
+  useSameNameRequire: true,
+  parser: [
     fis.plugin('babel-6.x', {
       presets: ['es2015-loose', 'react', 'stage-3']
     }),
@@ -62,7 +70,12 @@ fis.match('src/{**.vue:less,**.less}', {
 
 fis.match('src/{**.vue:scss,**.scss}', {
   rExt: 'css',
-  parser: [fis.plugin('node-sass')],
+  parser: [
+    fis.plugin('node-sass', {
+      sourceMap: true,
+      // sourceMapEmbed: true,
+    })
+  ],
   postprocessor: fis.plugin('autoprefixer'),
 });
 
@@ -73,6 +86,7 @@ fis.match('/src/(**)', {
 
 //
 fis.match('src/(component/**.css)', {
+  // packTo: 'component-all.css',
   release: 'static/$1'
 });
 

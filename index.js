@@ -1,9 +1,9 @@
 var path = require('path');
-var chalk = require('chalk')
 var objectAssign = require('object-assign');
 var hashSum = require('hash-sum');
 var compiler = require('vue-template-compiler');
-var transpile = require('vue-template-es2015-compiler');
+
+var compileTemplate = require('./lib/template-compiler');
 
 // exports
 module.exports = function(content, file, conf) {
@@ -67,29 +67,17 @@ module.exports = function(content, file, conf) {
   // template
   if (configs.runtimeOnly) {
     // runtimeOnly
-
-    function toFunction (code) {
-      // console.log(code);
-      return transpile('function render () {' + code + '}')
-    }
-
     if (output.template) {
       templateContent = fis.compile.partial(output.template.content, file, {
         ext: output.template.lang || 'html',
         isHtmlLike: true
       });
 
-      var compiled = compiler.compile(templateContent);
       var renderFun, staticRenderFns;
-
-      if (compiled.errors.length) {
-        compiled.errors.forEach(function (err) {
-          console.error('\n' + chalk.red(err) + '\n')
-        });
-        throw new Error('Vue template compilation failed');
-      } else {
-        renderFun = toFunction(compiled.render);
-        staticRenderFns = '[' + compiled.staticRenderFns.map(toFunction).join(',') + ']';
+      var result = compileTemplate(templateContent);
+      if(result){
+        renderFun = result.render;
+        staticRenderFns = result.staticRenderFns;
       }
     } else {
       renderFun = 'function(){}';

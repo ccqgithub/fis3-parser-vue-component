@@ -4,6 +4,7 @@ var hashSum = require('hash-sum');
 var compiler = require('vue-template-compiler');
 
 var compileTemplate = require('./lib/template-compiler');
+var insertCSS = require('./lib/insert-css');
 
 // exports
 module.exports = function(content, file, conf) {
@@ -13,6 +14,7 @@ module.exports = function(content, file, conf) {
 
   // configs
   configs = objectAssign({
+    extractCSS: true,
     cssScopedFlag: '__vuec__',
     cssScopedIdPrefix: '_v-',
     cssScopedHashType: 'sum',
@@ -108,33 +110,45 @@ module.exports = function(content, file, conf) {
 
   // style
   output['styles'].forEach(function(item, index) {
-    if (item.content) {
-      var styleFileName, styleFile, styleContent;
-
-      if (output['styles'].length == 1) {
-        styleFileName = file.realpathNoExt + configs.styleNameJoin + '.css';
-      } else {
-        styleFileName = file.realpathNoExt + configs.styleNameJoin + '-' + index + '.css';
-      }
-
-      styleFile = fis.file.wrap(styleFileName);
-      
-      // css也采用片段编译，更好的支持less、sass等其他语言
-      styleContent = fis.compile.partial(item.content, file, {
-        ext: item.lang || 'css',
-        isCssLike: true
-      });
-
-      styleFile.cache = file.cache;
-      styleFile.isCssLike = true;
-      styleFile.setContent(styleContent);
-      fis.compile.process(styleFile);
-      styleFile.links.forEach(function(derived) {
-        file.addLink(derived);
-      });
-      file.derived.push(styleFile);
-      file.addRequire(styleFile.getId());
+    if(!item.content){
+      return;
     }
+
+    // empty string, or all space line
+    if(/^\s*$/.test(item.content)){
+      return;
+    }
+
+    // css也采用片段编译，更好的支持less、sass等其他语言
+    var styleContent = fis.compile.partial(item.content, file, {
+      ext: item.lang || 'css',
+      isCssLike: true
+    });
+
+    if(!configs.extractCSS){
+      scriptStr += '\n;(' + insertCSS + ')(' + JSON.stringify(styleContent) + ');\n';
+      return;
+    }
+
+    var styleFileName, styleFile;
+
+    if (output['styles'].length == 1) {
+      styleFileName = file.realpathNoExt + configs.styleNameJoin + '.css';
+    } else {
+      styleFileName = file.realpathNoExt + configs.styleNameJoin + '-' + index + '.css';
+    }
+
+    styleFile = fis.file.wrap(styleFileName);
+
+    styleFile.cache = file.cache;
+    styleFile.isCssLike = true;
+    styleFile.setContent(styleContent);
+    fis.compile.process(styleFile);
+    styleFile.links.forEach(function(derived) {
+      file.addLink(derived);
+    });
+    file.derived.push(styleFile);
+    file.addRequire(styleFile.getId());
   });
 
   // 处理一遍scoped css

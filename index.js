@@ -9,8 +9,7 @@ var insertCSS = require('./lib/insert-css');
 // exports
 module.exports = function(content, file, conf) {
   var scriptStr = '';
-  var templateFileName, templateFile, templateContent;
-  var fragment, output, configs, vuecId, jsLang;
+  var output, configs, vuecId, jsLang;
 
   // configs
   configs = objectAssign({
@@ -66,45 +65,26 @@ module.exports = function(content, file, conf) {
     isJsLike: true
   });
 
-  // template
-  if (configs.runtimeOnly) {
+  if(output.template){
+    var templateContent = fis.compile.partial(output.template.content, file, {
+      ext: output.template.lang || 'html',
+      isHtmlLike: true
+    });
     // runtimeOnly
-    if (output.template) {
-      templateContent = fis.compile.partial(output.template.content, file, {
-        ext: output.template.lang || 'html',
-        isHtmlLike: true
-      });
-
-      var renderFun, staticRenderFns;
+    if(configs.runtimeOnly){
       var result = compileTemplate(templateContent);
       if(result){
-        renderFun = result.render;
-        staticRenderFns = result.staticRenderFns;
+        scriptStr += '\n;\n(function(renderFun, staticRenderFns){\n'
+        scriptStr += '\nif(module && module.exports){ module.exports.render=renderFun; module.exports.staticRenderFns=staticRenderFns;}\n';
+        scriptStr += '\nif(exports && exports.default){ exports.default.render=renderFun; exports.default.staticRenderFns=staticRenderFns;}\n';
+        scriptStr += '\n})(' + result.render + ',' + result.staticRenderFns + ');\n';
       }
-    } else {
-      renderFun = 'function(){}';
-      staticRenderFns = '[]';
-    }
-
-    scriptStr += '\n;\n(function(renderFun, staticRenderFns){\n'
-    scriptStr += '\nif(module && module.exports){ module.exports.render=renderFun; module.exports.staticRenderFns=staticRenderFns;}\n';
-    scriptStr += '\nif(exports && exports.default){ exports.default.render=renderFun; exports.default.staticRenderFns=staticRenderFns;}\n';
-    scriptStr += '\n})(' + renderFun + ',' + staticRenderFns + ');\n';
-  } else {
-    // template
-    if (output.template) {
-      templateContent = fis.compile.partial(output.template.content, file, {
-        ext: output.template.lang || 'html',
-        isHtmlLike: true
-      });
-
+    }else{
+      // template
       scriptStr += '\n;\n(function(template){\n'
       scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
       scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
       scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';
-    } else {
-      scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
-      scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';
     }
   }
 

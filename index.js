@@ -1,18 +1,19 @@
 var path = require('path');
-var chalk = require('chalk')
 var objectAssign = require('object-assign');
 var hashSum = require('hash-sum');
 var compiler = require('vue-template-compiler');
-var transpile = require('vue-template-es2015-compiler');
+
+var compileTemplate = require('./lib/template-compiler');
+var insertCSS = require('./lib/insert-css');
 
 // exports
 module.exports = function(content, file, conf) {
   var scriptStr = '';
-  var templateFileName, templateFile, templateContent;
-  var fragment, output, configs, vuecId, jsLang;
+  var output, configs, vuecId, jsLang;
 
   // configs
   configs = objectAssign({
+    extractCSS: true,
     cssScopedFlag: '__vuec__',
     cssScopedIdPrefix: '_v-',
     cssScopedHashType: 'sum',
@@ -64,89 +65,70 @@ module.exports = function(content, file, conf) {
     isJsLike: true
   });
 
-  // template
-  if (configs.runtimeOnly) {
+  if(output.template){
+    var templateContent = fis.compile.partial(output.template.content, file, {
+      ext: output.template.lang || 'html',
+      isHtmlLike: true
+    });
     // runtimeOnly
-
-    function toFunction (code) {
-      // console.log(code);
-      return transpile('function render () {' + code + '}')
-    }
-
-    if (output.template) {
-      templateContent = fis.compile.partial(output.template.content, file, {
-        ext: output.template.lang || 'html',
-        isHtmlLike: true
-      });
-
-      var compiled = compiler.compile(templateContent);
-      var renderFun, staticRenderFns;
-
-      if (compiled.errors.length) {
-        compiled.errors.forEach(function (err) {
-          console.error('\n' + chalk.red(err) + '\n')
-        });
-        throw new Error('Vue template compilation failed');
-      } else {
-        renderFun = toFunction(compiled.render);
-        staticRenderFns = '[' + compiled.staticRenderFns.map(toFunction).join(',') + ']';
+    if(configs.runtimeOnly){
+      var result = compileTemplate(templateContent);
+      if(result){
+        scriptStr += '\n;\n(function(renderFun, staticRenderFns){\n'
+        scriptStr += '\nif(module && module.exports){ module.exports.render=renderFun; module.exports.staticRenderFns=staticRenderFns;}\n';
+        scriptStr += '\nif(exports && exports.default){ exports.default.render=renderFun; exports.default.staticRenderFns=staticRenderFns;}\n';
+        scriptStr += '\n})(' + result.render + ',' + result.staticRenderFns + ');\n';
       }
-    } else {
-      renderFun = 'function(){}';
-      staticRenderFns = '[]';
-    }
-
-    scriptStr += '\n;\n(function(renderFun, staticRenderFns){\n'
-    scriptStr += '\nif(module && module.exports){ module.exports.render=renderFun; module.exports.staticRenderFns=staticRenderFns;}\n';
-    scriptStr += '\nif(exports && exports.default){ exports.default.render=renderFun; exports.default.staticRenderFns=staticRenderFns;}\n';
-    scriptStr += '\n})(' + renderFun + ',' + staticRenderFns + ');\n';
-  } else {
-    // template
-    if (output.template) {
-      templateContent = fis.compile.partial(output.template.content, file, {
-        ext: output.template.lang || 'html',
-        isHtmlLike: true
-      });
-
+    }else{
+      // template
       scriptStr += '\n;\n(function(template){\n'
       scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
       scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
       scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';
-    } else {
-      scriptStr += '\nmodule && module.exports && (module.exports.template = "");\n';
-      scriptStr += '\nexports && exports.default && (exports.default.template = "");\n';
     }
   }
 
   // style
   output['styles'].forEach(function(item, index) {
-    if (item.content) {
-      var styleFileName, styleFile, styleContent;
-
-      if (output['styles'].length == 1) {
-        styleFileName = file.realpathNoExt + configs.styleNameJoin + '.css';
-      } else {
-        styleFileName = file.realpathNoExt + configs.styleNameJoin + '-' + index + '.css';
-      }
-
-      styleFile = fis.file.wrap(styleFileName);
-      
-      // css也采用片段编译，更好的支持less、sass等其他语言
-      styleContent = fis.compile.partial(item.content, file, {
-        ext: item.lang || 'css',
-        isCssLike: true
-      });
-
-      styleFile.cache = file.cache;
-      styleFile.isCssLike = true;
-      styleFile.setContent(styleContent);
-      fis.compile.process(styleFile);
-      styleFile.links.forEach(function(derived) {
-        file.addLink(derived);
-      });
-      file.derived.push(styleFile);
-      file.addRequire(styleFile.getId());
+    if(!item.content){
+      return;
     }
+
+    // empty string, or all space line
+    if(/^\s*$/.test(item.content)){
+      return;
+    }
+
+    // css也采用片段编译，更好的支持less、sass等其他语言
+    var styleContent = fis.compile.partial(item.content, file, {
+      ext: item.lang || 'css',
+      isCssLike: true
+    });
+
+    if(!configs.extractCSS){
+      scriptStr += '\n;(' + insertCSS + ')(' + JSON.stringify(styleContent) + ');\n';
+      return;
+    }
+
+    var styleFileName, styleFile;
+
+    if (output['styles'].length == 1) {
+      styleFileName = file.realpathNoExt + configs.styleNameJoin + '.css';
+    } else {
+      styleFileName = file.realpathNoExt + configs.styleNameJoin + '-' + index + '.css';
+    }
+
+    styleFile = fis.file.wrap(styleFileName);
+
+    styleFile.cache = file.cache;
+    styleFile.isCssLike = true;
+    styleFile.setContent(styleContent);
+    fis.compile.process(styleFile);
+    styleFile.links.forEach(function(derived) {
+      file.addLink(derived);
+    });
+    file.derived.push(styleFile);
+    file.addRequire(styleFile.getId());
   });
 
   // 处理一遍scoped css

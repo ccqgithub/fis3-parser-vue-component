@@ -126,7 +126,7 @@ fis.match('src/(component/**.css)', {
 
 ## 组件编写规范
 
-`style`标签可以有多个，`template`和`script`标签只能有一个，具体请参考[vue 单文件组件](http://vuejs.org.cn/guide/application.html)。
+`style`标签可以有多个，`template`和`script`标签只能有一个，具体请参考[vue 单文件组件](https://vuejs.org/v2/guide/single-file-components.html)。
 
 ## css scoped支持
 

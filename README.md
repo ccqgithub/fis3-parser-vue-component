@@ -33,8 +33,9 @@ fis.match('src/**.vue', {
       // styleNameJoin
       styleNameJoin: '',          // 样式文件命名连接符 `component-xx-a.css`
 
+      extractCSS: true,           // 是否将css生成新的文件, 如果为false, 则会内联到js中
+
       // css scoped
-      ccssScopedFlag: '__vuec__', // 组件scoped占位符
       cssScopedIdPrefix: '_v-',   // hash前缀：_v-23j232jj
       cssScopedHashType: 'sum',   // hash生成模式，num：使用`hash-sum`, md5: 使用`fis.util.md5`
       cssScopedHashLength: 8,     // hash 长度，cssScopedHashType为md5时有效
@@ -116,7 +117,7 @@ fis.match('src/(component/**.css)', {
 
 参考[vue-loader](https://github.com/vuejs/vue-loader)源码，结合fis3的编译特性而编写,下面是parser阶段的主要过程：
 
-1. 解析vue文件，找到其中的`style`,'template','script'标签。
+1. 解析vue文件，找到其中的`style`,`template`,`script`标签。
 
 2. 每一个`style`标签创建一个对应的虚拟文件，后缀为`lang`属性指定，默认`css`，你可以指定`less`或其它的后缀。对创建虚拟文件，一样会进行fis3的编译流程（属性`lang`的值决定该文件怎么编译），并加入当前文件的依赖。
 
@@ -132,36 +133,14 @@ fis.match('src/(component/**.css)', {
 
 > 为了保证每一个组件样式的独立性，是当前组件定义的样式只在当前的组件内生效，引入css scoped机制。
 
-- 在模板的元素上（一般是根节点）加上scoped标志(class,attr,id)，默认为`__vuec__`， 你可以通过`cssScopedFlag`自定义。可以加在class，或者属性，或者id。
+- 在style标签中使用scoped标志。
 
-```html
-<template>
-  <div class="test" __vuec__></div>
-  <div class="test __vuec__"></div>
-</template>
-```
+    ```css
+    <style scoped></style>
+    <style lang="scss" scoped></style>
+    ```
 
-- 在样式中使用scoped标志。
-
-```css
-.test[__vuec__] {
-  //
-}
-// or
-.other.__vuec__ {
-
-}
-// or
-.__vuec__ {
-  .a {
-
-  }
-}
-```
-
-- scoped标志会根据文件路径生成唯一的hash字符串（如：`_v-23j232jj` ）;
-
-- 配置：scoped标志默认为`__vuec__`，你可以自定义。
+- scoped标志会根据文件路径生成唯一的hash字符串（如：`_v-23j232jj` ）
 
 ## 测试demo
 

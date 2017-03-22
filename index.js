@@ -3,18 +3,19 @@ var objectAssign = require('object-assign');
 var hashSum = require('hash-sum');
 var compiler = require('vue-template-compiler');
 
+var genId = require('./lib/gen-id');
+var rewriteStyle = require('./lib/style-rewriter');
 var compileTemplate = require('./lib/template-compiler');
 var insertCSS = require('./lib/insert-css');
 
 // exports
 module.exports = function(content, file, conf) {
   var scriptStr = '';
-  var output, configs, vuecId, jsLang;
+  var output, configs, jsLang;
 
   // configs
   configs = objectAssign({
     extractCSS: true,
-    cssScopedFlag: '__vuec__',
     cssScopedIdPrefix: '_v-',
     cssScopedHashType: 'sum',
     cssScopedHashLength: 8,
@@ -23,28 +24,18 @@ module.exports = function(content, file, conf) {
     runtimeOnly: false,
   }, conf);
 
-  // replace scoped flag
-  function replaceScopedFlag(str) {
-    var reg = new RegExp('([^a-zA-Z0-9\-_])('+ configs.cssScopedFlag +')([^a-zA-Z0-9\-_])', 'g');
-    str = str.replace(reg, function($0, $1, $2, $3) {
-      return $1 + vuecId + $3;
-    });
-    return str;
-  }
-
   // 兼容content为buffer的情况
   content = content.toString();
 
-  // scope replace
-  if (configs.cssScopedType == 'sum') {
-    vuecId = configs.cssScopedIdPrefix + hashSum(file.subpath);
-  } else {
-    vuecId = configs.cssScopedIdPrefix + fis.util.md5(file.subpath, configs.cssScopedHashLength);
-  }
-  content = replaceScopedFlag(content);
-
+  // generate css scope id
+  var id = configs.cssScopedIdPrefix + genId(file, configs);
   // parse
   var output = compiler.parseComponent(content.toString(), { pad: true });
+
+  // check for scoped style nodes
+  var hasScopedStyle = output.styles.some(function (style) {
+    return style.scoped
+  });
 
   // script
   if (output.script) {
@@ -90,8 +81,13 @@ module.exports = function(content, file, conf) {
     }
   }
 
+  if(hasScopedStyle){
+    // template
+    scriptStr += '__vue__options__._scopeId = ' + JSON.stringify(id) + '\n';
+  }
+
   // style
-  output['styles'].forEach(function(item, index) {
+  output.styles.forEach(function(item, index) {
     if(!item.content){
       return;
     }
@@ -106,6 +102,8 @@ module.exports = function(content, file, conf) {
       ext: item.lang || 'css',
       isCssLike: true
     });
+
+    styleContent = rewriteStyle(id, styleContent, item.scoped, {})
 
     if(!configs.extractCSS){
       scriptStr += '\n;(' + insertCSS + ')(' + JSON.stringify(styleContent) + ');\n';
@@ -132,9 +130,6 @@ module.exports = function(content, file, conf) {
     file.derived.push(styleFile);
     file.addRequire(styleFile.getId());
   });
-
-  // 处理一遍scoped css
-  scriptStr = replaceScopedFlag(scriptStr);
 
   return scriptStr;
 };

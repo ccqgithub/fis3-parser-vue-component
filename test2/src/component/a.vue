@@ -1,5 +1,5 @@
 <template lang="html">
-  <div class="component-a" __vuec__>
+  <div class="component-a">
     Component A
   </div>
 </template>
@@ -15,13 +15,13 @@
   }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 body {
   a {
     color: inherit;
   }
 }
-.component-a[__vuec__] {
+.component-a {
   line-height: 50px;
   text-align: center;
   color: #fff;

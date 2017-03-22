@@ -65,6 +65,13 @@ module.exports = function(content, file, conf) {
     isJsLike: true
   });
 
+  scriptStr += '\nvar __vue__options__;\n';
+  scriptStr += 'if(module.exports.__esModule && module.exports.default){\n';
+  scriptStr += '  __vue__options__ = module.exports.default;\n';
+  scriptStr += '}else{\n';
+  scriptStr += '  __vue__options__ = module.exports;\n';
+  scriptStr += '}\n';
+
   if(output.template){
     var templateContent = fis.compile.partial(output.template.content, file, {
       ext: output.template.lang || 'html',
@@ -74,17 +81,12 @@ module.exports = function(content, file, conf) {
     if(configs.runtimeOnly){
       var result = compileTemplate(templateContent);
       if(result){
-        scriptStr += '\n;\n(function(renderFun, staticRenderFns){\n'
-        scriptStr += '\nif(module && module.exports){ module.exports.render=renderFun; module.exports.staticRenderFns=staticRenderFns;}\n';
-        scriptStr += '\nif(exports && exports.default){ exports.default.render=renderFun; exports.default.staticRenderFns=staticRenderFns;}\n';
-        scriptStr += '\n})(' + result.render + ',' + result.staticRenderFns + ');\n';
+        scriptStr += '__vue__options__.render =' + result.render + '\n';
+        scriptStr += '__vue__options__.staticRenderFns =' + result.staticRenderFns + '\n';
       }
     }else{
       // template
-      scriptStr += '\n;\n(function(template){\n'
-      scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
-      scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
-      scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';
+      scriptStr += '__vue__options__.template = ' + JSON.stringify(templateContent) + '\n';
     }
   }
 

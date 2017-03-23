@@ -39,6 +39,8 @@ fis.match('src/**.vue', {
       cssScopedIdPrefix: '_v-',   // hash前缀：_v-23j232jj
       cssScopedHashType: 'sum',   // hash生成模式，num：使用`hash-sum`, md5: 使用`fis.util.md5`
       cssScopedHashLength: 8,     // hash 长度，cssScopedHashType为md5时有效
+
+      cssScopedFlag: '__vuec__',  // 兼容旧的ccs scoped模式而存在，此例子会将组件中所有的`__vuec__`替换为 `scoped id`，不需要设为空
     })
   ],
 });

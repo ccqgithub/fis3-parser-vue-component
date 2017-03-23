@@ -7,6 +7,7 @@ var genId = require('./lib/gen-id');
 var rewriteStyle = require('./lib/style-rewriter');
 var compileTemplate = require('./lib/template-compiler');
 var insertCSS = require('./lib/insert-css');
+var replaceScopedFlag = require('./lib/replace-scoped-flag');
 
 // exports
 module.exports = function(content, file, conf) {
@@ -15,6 +16,8 @@ module.exports = function(content, file, conf) {
 
   // configs
   configs = objectAssign({
+    cssScopedFlag: '__vuec__',
+
     extractCSS: true,
     cssScopedIdPrefix: '_v-',
     cssScopedHashType: 'sum',
@@ -29,6 +32,12 @@ module.exports = function(content, file, conf) {
 
   // generate css scope id
   var id = configs.cssScopedIdPrefix + genId(file, configs);
+
+  // 兼容旧的cssScopedFlag
+  if (configs.cssScopedFlag) {
+    content = replaceScopedFlag(content, configs.cssScopedFlag, id);
+  }
+
   // parse
   var output = compiler.parseComponent(content.toString(), { pad: true });
 
@@ -57,8 +66,8 @@ module.exports = function(content, file, conf) {
   });
 
   scriptStr += '\nvar __vue__options__;\n';
-  scriptStr += 'if(module.exports.__esModule && module.exports.default){\n';
-  scriptStr += '  __vue__options__ = module.exports.default;\n';
+  scriptStr += 'if(exports && exports.__esModule && exports.default){\n';
+  scriptStr += '  __vue__options__ = exports.default;\n';
   scriptStr += '}else{\n';
   scriptStr += '  __vue__options__ = module.exports;\n';
   scriptStr += '}\n';

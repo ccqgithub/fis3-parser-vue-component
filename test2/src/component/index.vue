@@ -9,6 +9,9 @@
     border: 1px solid #ddd;
   }
 }
+.__vuec__ {
+  color: red;
+}
 </style>
 
 <style lang="scss">
@@ -30,6 +33,9 @@ $blue : #1875e7;　
     <component-c></component-c>
     <component-jade></component-jade>
     <test-bug></test-bug>
+    <div class="__vuec__">
+      cssScopedFlag test, color red !
+    </div>
   </div>
 </template>
 
@@ -47,7 +53,7 @@ $blue : #1875e7;　
       ComponentB,
       ComponentJade,
       TestBug,
-      ComponentC: require('./c')
+      ComponentC: require('./c').default
     },
     created() {
       console.log('Index page created!');

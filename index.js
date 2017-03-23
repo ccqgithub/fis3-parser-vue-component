@@ -3,18 +3,19 @@ var objectAssign = require('object-assign');
 var hashSum = require('hash-sum');
 var compiler = require('vue-template-compiler');
 
+var genId = require('./lib/gen-id');
+var rewriteStyle = require('./lib/style-rewriter');
 var compileTemplate = require('./lib/template-compiler');
 var insertCSS = require('./lib/insert-css');
 
 // exports
 module.exports = function(content, file, conf) {
   var scriptStr = '';
-  var output, configs, vuecId, jsLang;
+  var output, configs, jsLang;
 
   // configs
   configs = objectAssign({
     extractCSS: true,
-    cssScopedFlag: '__vuec__',
     cssScopedIdPrefix: '_v-',
     cssScopedHashType: 'sum',
     cssScopedHashLength: 8,
@@ -23,28 +24,18 @@ module.exports = function(content, file, conf) {
     runtimeOnly: false,
   }, conf);
 
-  // replace scoped flag
-  function replaceScopedFlag(str) {
-    var reg = new RegExp('([^a-zA-Z0-9\-_])('+ configs.cssScopedFlag +')([^a-zA-Z0-9\-_])', 'g');
-    str = str.replace(reg, function($0, $1, $2, $3) {
-      return $1 + vuecId + $3;
-    });
-    return str;
-  }
-
   // 兼容content为buffer的情况
   content = content.toString();
 
-  // scope replace
-  if (configs.cssScopedType == 'sum') {
-    vuecId = configs.cssScopedIdPrefix + hashSum(file.subpath);
-  } else {
-    vuecId = configs.cssScopedIdPrefix + fis.util.md5(file.subpath, configs.cssScopedHashLength);
-  }
-  content = replaceScopedFlag(content);
-
+  // generate css scope id
+  var id = configs.cssScopedIdPrefix + genId(file, configs);
   // parse
   var output = compiler.parseComponent(content.toString(), { pad: true });
+
+  // check for scoped style nodes
+  var hasScopedStyle = output.styles.some(function (style) {
+    return style.scoped
+  });
 
   // script
   if (output.script) {
@@ -65,6 +56,13 @@ module.exports = function(content, file, conf) {
     isJsLike: true
   });
 
+  scriptStr += '\nvar __vue__options__;\n';
+  scriptStr += 'if(module.exports.__esModule && module.exports.default){\n';
+  scriptStr += '  __vue__options__ = module.exports.default;\n';
+  scriptStr += '}else{\n';
+  scriptStr += '  __vue__options__ = module.exports;\n';
+  scriptStr += '}\n';
+
   if(output.template){
     var templateContent = fis.compile.partial(output.template.content, file, {
       ext: output.template.lang || 'html',
@@ -74,22 +72,22 @@ module.exports = function(content, file, conf) {
     if(configs.runtimeOnly){
       var result = compileTemplate(templateContent);
       if(result){
-        scriptStr += '\n;\n(function(renderFun, staticRenderFns){\n'
-        scriptStr += '\nif(module && module.exports){ module.exports.render=renderFun; module.exports.staticRenderFns=staticRenderFns;}\n';
-        scriptStr += '\nif(exports && exports.default){ exports.default.render=renderFun; exports.default.staticRenderFns=staticRenderFns;}\n';
-        scriptStr += '\n})(' + result.render + ',' + result.staticRenderFns + ');\n';
+        scriptStr += '__vue__options__.render =' + result.render + '\n';
+        scriptStr += '__vue__options__.staticRenderFns =' + result.staticRenderFns + '\n';
       }
     }else{
       // template
-      scriptStr += '\n;\n(function(template){\n'
-      scriptStr += '\nmodule && module.exports && (module.exports.template = template);\n';
-      scriptStr += '\nexports && exports.default && (exports.default.template = template);\n';
-      scriptStr += '\n})(' + JSON.stringify(templateContent) + ');\n';
+      scriptStr += '__vue__options__.template = ' + JSON.stringify(templateContent) + '\n';
     }
   }
 
+  if(hasScopedStyle){
+    // template
+    scriptStr += '__vue__options__._scopeId = ' + JSON.stringify(id) + '\n';
+  }
+
   // style
-  output['styles'].forEach(function(item, index) {
+  output.styles.forEach(function(item, index) {
     if(!item.content){
       return;
     }
@@ -104,6 +102,8 @@ module.exports = function(content, file, conf) {
       ext: item.lang || 'css',
       isCssLike: true
     });
+
+    styleContent = rewriteStyle(id, styleContent, item.scoped, {})
 
     if(!configs.extractCSS){
       scriptStr += '\n;(' + insertCSS + ')(' + JSON.stringify(styleContent) + ');\n';
@@ -130,9 +130,6 @@ module.exports = function(content, file, conf) {
     file.derived.push(styleFile);
     file.addRequire(styleFile.getId());
   });
-
-  // 处理一遍scoped css
-  scriptStr = replaceScopedFlag(scriptStr);
 
   return scriptStr;
 };

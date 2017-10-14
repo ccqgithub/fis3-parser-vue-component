@@ -30,7 +30,7 @@ fis.match('src/**.vue', {
   parser: [
     fis.plugin('vue-component', {
       // vue@2.x runtimeOnly
-      runtimeOnly: true,          // vue@2.x 有润timeOnly模式，为ture时，template会在构建时转为render方法
+      runtimeOnly: true,          // vue@2.x 有runtimeOnly模式，为true时，template会在构建时转为render方法
 
       // styleNameJoin
       styleNameJoin: '',          // 样式文件命名连接符 `component-xx-a.css`

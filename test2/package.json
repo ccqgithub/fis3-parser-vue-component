@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "vue": "^2.1.6"
+    "vue": "^2.5.2"
   },
   "devDependencies": {
     "babel-preset-es2015-loose": "^7.0.0",

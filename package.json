@@ -1,6 +1,6 @@
 {
   "name": "fis3-parser-vue-component",
-  "version": "5.4.0",
+  "version": "5.5.0",
   "description": "A parser plugin for fis3 to parser vue component.",
   "keywords": [
     "fis3",
@@ -19,8 +19,8 @@
     "postcss": "^5.2.16",
     "postcss-selector-parser": "^2.2.3",
     "uglify-js": "^2.8.14",
-    "vue-template-compiler": "^2.1.6",
-    "vue-template-es2015-compiler": "^1.4.0"
+    "vue-template-compiler": "^2.5.2",
+    "vue-template-es2015-compiler": "^1.6.0"
   },
   "devDependencies": {},
   "scripts": {

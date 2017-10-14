@@ -2,6 +2,10 @@
 
 > [FIS3](http://fis.baidu.com/) parser 阶段插件，用于在fis3中编译[Vue](http://vuejs.org.cn/)组件。
 
+## 相关
+
+[vue + vuex + vue-router + webpack 快速开始脚手架](https://github.com/ccqgithub/vue-start).
+
 ## 注意
 
 - `5.5.0` for `vue@2.5.x`。

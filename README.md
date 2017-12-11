@@ -1,6 +1,8 @@
 # fis3-parser-vue-component
 
-> [FIS3](http://fis.baidu.com/) parser 阶段插件，用于在fis3中编译[Vue](http://vuejs.org.cn/)组件。
+> 由于本插件作者开始使用webpack，本插件不再积极维护，建议使用fis的同学fork一份发布一个新插件。
+
+> 如果你已经在积极维护一个新的插件并且希望使用此插件的人转过去，请提一个issue，我在这里加上一个提示。
 
 ## 相关
 
